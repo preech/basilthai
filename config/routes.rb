@@ -1,10 +1,9 @@
 Rails.application.routes.draw do
   root :to => 'program#page', :program => 'food_menu'
   get '/page/*program' => 'program#page'
-  #get '/food_menu' => 'food_menu#edit'
-  #put '/food_menu' => 'food_menu#update'
-  get '/food_menu', to: 'food_menu#edit' , via: [:get]
+  match '/food_menu', to: 'food_menu#edit' , via: [:get]
   match '/food_menu', to: 'food_menu#update' , via: [:put]
+  match '/pos_order', to: 'pos_order#load' , via: [:get]
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
