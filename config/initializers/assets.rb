@@ -9,3 +9,5 @@ Rails.application.config.assets.version = '1.0'
 
 Rails.application.config.assets.precompile += %w( food_menu/main.js )
 Rails.application.config.assets.precompile += %w( food_menu.css )
+Rails.application.config.assets.precompile += %w( pos_order/main.js )
+Rails.application.config.assets.precompile += %w( pos_order.css )
