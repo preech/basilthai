@@ -1,0 +1,6 @@
+<% unless (@program_js.blank?) %>
+<script src="<%= asset_path @program_js %>"></script>
+<% end %>
+<% unless (@program_css.blank?) %>
+<link href="<%= asset_path @program_css %>" rel="stylesheet" type="text/css" />
+<% end %>

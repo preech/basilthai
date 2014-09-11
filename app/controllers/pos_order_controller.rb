@@ -1,0 +1,2 @@
+class PosOrderController < ApplicationController
+end

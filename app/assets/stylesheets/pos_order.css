@@ -1,0 +1,82 @@
+div {
+	-webkit-touch-callout:none;
+	-webkit-user-select:none;
+	-khtml-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+	-webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+.menupanel {
+    background-color: #C9DDFB;
+}
+.foodpanel {
+    border: 1px solid #004CBE;
+    text-align: center;
+    width: 100%;
+    color: #0042A5;
+    background-color: white;
+}
+.foodlabel {
+    float: left;
+    background-color: #C9DDF5;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid #004CBE;
+}
+.choicelabel {
+    float: left;
+    background-color: #B3A4F0;
+    /*font-size: larger;*/
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid #382682;
+    border-radius: 10px;
+}
+.optionlabel {
+    float: left;
+    background-color: #B3A4F0;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid #382682;
+    border-radius: 10px;
+}
+.optionpanel {
+    float: left;
+    border: 1px solid white;
+    border-radius: 10px;
+}
+.optionmainpane {
+    overflow-x: scroll;
+    background-color: #D9BBFB;
+}
+.optionpane {
+    background-color: #D9BBFB;
+    border: none;
+}
+.touchbutton {
+    background-color: #359AD9;
+    border: 1px solid #0066A5;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+.touchbutton :active {
+    background-color: #003D72;
+}
+.touchcommand{
+    background-color: #006CB0;
+    border: 1px solid #00070B;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+.touchcommand :active {
+    background-color: #003D72;
+}
+.selected {
+    background-color: #F78686;
+}

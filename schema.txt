@@ -1,0 +1,102 @@
+CREATE TABLE choice_groups
+(
+  id bigserial NOT NULL,
+  choice_group_code character varying(255),
+  name character varying(255),
+  CONSTRAINT choice_groups_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE choice_groups
+  OWNER TO postgres;
+
+CREATE TABLE choices
+(
+  id bigserial NOT NULL,
+  choice_code character varying(255),
+  name character varying(255),
+  price money,
+  choice_group_id bigint,
+  CONSTRAINT choices_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE choices
+  OWNER TO postgres;
+
+CREATE TABLE item_categories
+(
+  id bigserial NOT NULL,
+  item_category_code character varying(255),
+  name character varying(255),
+  seq_no integer,
+  CONSTRAINT item_categories_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE item_categories
+  OWNER TO postgres;
+
+CREATE TABLE item_options
+(
+  id bigserial NOT NULL,
+  option_group_code character varying(255),
+  default_option_code character varying(255),
+  item_id bigint,
+  CONSTRAINT item_options_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE item_options
+  OWNER TO postgres;
+
+CREATE TABLE items
+(
+  id bigserial NOT NULL,
+  name character varying(255),
+  price_type character varying(255),
+  price money,
+  category_code character varying(255),
+  item_code character varying(255),
+  choice_group_code character varying(255),
+  description character varying(255),
+  seq_no integer,
+  CONSTRAINT items_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE items
+  OWNER TO postgres;
+
+CREATE TABLE option_groups
+(
+  id bigserial NOT NULL,
+  option_group_code character varying(255),
+  name character varying(255),
+  CONSTRAINT option_groups_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE option_groups
+  OWNER TO postgres;
+
+CREATE TABLE options
+(
+  id bigserial NOT NULL,
+  option_code character varying(255),
+  name character varying(255),
+  option_group_id bigint,
+  CONSTRAINT options_pkey PRIMARY KEY (id )
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE options
+  OWNER TO postgres;
+
