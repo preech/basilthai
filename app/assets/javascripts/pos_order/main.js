@@ -83,7 +83,11 @@ Ext.onReady(function () {
             }, {
                 name: 'choice',
             }, {
+                name: 'choicename',
+            }, {
                 name: 'option',
+            }, {
+                name: 'optionname',
             }, {
                 name: 'quantity', 
             }, {
@@ -95,13 +99,13 @@ Ext.onReady(function () {
                     tag = "<span style='font-size:" + 100*ratio + "%'>" + tag + "</span>";
                     var optiontag = "";
                     if (record.data.choice) {
-                        optiontag += record.data.choice;
+                        optiontag += record.data.choicename;
                     }
                     if (record.data.option) {
                         if (optiontag) {
                             optiontag += ' , ';
                         }
-                        optiontag += record.data.option;
+                        optiontag += record.data.optionname;
                     }
                     if (optiontag) {
                         tag += "<br><span style='font-size:" + 70*ratio + "%'>" + optiontag + "</span>";
@@ -478,23 +482,26 @@ Ext.onReady(function () {
         {
             var record = sm.getLastSelected();
             var foodid = record.get('foodid');
-            var fooditem;
-            Ext.each(data.Items, function(item) {
-                if (item.id == foodid) {
-                    fooditem = item;
-                    return false;
-                }
-            });
-            var defaultoption = fooditem.defaultoption;
+            var fooditem = data.Items[foodid];
+            // Ext.each(data.Items, function(item) {
+                // if (item.id == foodid) {
+                    // fooditem = item;
+                    // return false;
+                // }
+            // });
             if (comp.data.choice) {
                 record.set('choice', comp.data.choice);
+                record.set('choicename', comp.data.name);
             }
             if (comp.data.option) {
+                var defaultoption = fooditem.OptionList[0].DefaultOptionCode;
                 if (comp.data.option == defaultoption) {
                     record.set('option', null);
+                    record.set('optionname', null);
                 }
                 else {
                     record.set('option', comp.data.option);
+                    record.set('optionname', comp.data.name);
                 }
             }
             if (comp.data.price >= 0) {
@@ -518,8 +525,8 @@ Ext.onReady(function () {
         // });
         var choicecount = 0;
         var optioncount = 0;
-        if (Util.isString(fooditem.price)) {
-            var priceset = data.pricesets[fooditem.price];
+        if (fooditem.PriceType == 'CHOICE') {
+            var priceset = data.ChoiceGroups[fooditem.ChoiceGroupCode].ChoiceList;
             var panel = Ext.create('Ext.panel.Panel', {
                 height: 60*optionratio+2,
                 width: priceset.length*60*optionratio+3,
@@ -537,12 +544,13 @@ Ext.onReady(function () {
                     bodyStyle: 'font-size: ' + 80*optionratio + '%',
                     style: 'float: left;',
                     data: { 
-                        choice: item.choice,
-                        price: item.price,
+                        choice: item.ChoiceCode,
+                        name: item.Name,
+                        price: item.Price,
                     },
-                    html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>' + item.choice + '</span></td></tr></table>',
+                    html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>' + item.Name + '</span></td></tr></table>',
                 });
-                if (currentchoice == item.choice) {
+                if (currentchoice == item.ChoiceCode) {
                     choice.addBodyCls('selected');
                 }
                 panel.add(choice);
@@ -552,8 +560,8 @@ Ext.onReady(function () {
             });
             optioncount++;
         }
-        if (fooditem.option) {
-            var optionlist = data.options[fooditem.option];
+        if (fooditem.OptionList.length > 0) {
+            var optionlist = data.OptionGroups[fooditem.OptionList[0].OptionGroupCode].OptionList;
             var panel = Ext.create('Ext.panel.Panel', {
                 height: 60*optionratio+2,
                 width: optionlist.length*60*optionratio+3,
@@ -571,11 +579,12 @@ Ext.onReady(function () {
                     bodyStyle: 'font-size: ' + 80*optionratio + '%',
                     style: 'float: left',
                     data: { 
-                        option: item.option,
+                        option: item.OptionCode,
+                        name: item.Name,
                     },
-                    html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>' + item.option + '</span></td></tr></table>',
+                    html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>' + item.Name + '</span></td></tr></table>',
                 });
-                if ((currentoption == item.option)||(!currentoption && (item.option == fooditem.defaultoption))) {
+                if ((currentoption == item.OptionCode)||(!currentoption && (item.OptionCode == fooditem.OptionList[0].DefaultOptionCode))) {
                     choice.addBodyCls('selected');
                 }
                 panel.add(choice);
@@ -626,7 +635,8 @@ Ext.onReady(function () {
                     margin: 10*choiceratio,
                     style: 'float: left',
                     data: { 
-                        choice: item.Name,
+                        choice: item.ChoiceCode,
+                        name: item.Name,
                         price: item.Price,
                     },
                     html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>' + item.Name + '</span></td></tr></table>',
@@ -640,7 +650,7 @@ Ext.onReady(function () {
                 }
                 var compx = Ext.getCmp(target.attr('id'));
                 var store = Ext.getStore('orderlistStore');
-                store.add({ foodid: itemdata.ItemCode, name: itemdata.Name, choice: compx.data.choice, quantity: 1, price: compx.data.price});
+                store.add({ foodid: itemdata.ItemCode, name: itemdata.Name, choice: compx.data.choice, choicename: compx.data.name, quantity: 1, price: compx.data.price});
                 var count = store.getCount();
                 Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
                 updatetotal();
@@ -655,11 +665,11 @@ Ext.onReady(function () {
             });
         }
         else {
-            store.add({ foodid: itemdata.id, name: itemdata.name, quantity: 1, price: itemdata.price });
+            store.add({ foodid: itemdata.ItemCode, name: itemdata.Name, quantity: 1, price: itemdata.Price });
             var count = store.getCount();
             Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
             updatetotal();
-            showoption(itemdata.id, null, null);
+            showoption(itemdata.ItemCode, null, null);
         }
     }
     function renderMenu() {
