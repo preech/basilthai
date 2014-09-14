@@ -81,13 +81,8 @@ Ext.onReady(function () {
                                 }, {
                                     xtype: 'textfield', 
                                     id: 'boxChoiceGroup', 
-                                    //store: 'storeChoiceGroup', 
                                     x: 50, 
                                     y: 0,
-                                    //queryMode: 'local',
-                                    //displayField: 'name',
-                                    //valueField: 'choicegroupcode',
-                                    //editable: false,
                                     readOnly: true,
                                 }, {
                                     xtype: 'button',
@@ -122,39 +117,6 @@ Ext.onReady(function () {
                             width: PHONE ? screensize.width-25 : screensize.width/3-25,
                             height: 290,
                             title: 'Options',
-                        // }, {
-                            // xtype: 'gridpanel',
-                            // id: 'gridOptionGroup',
-                            // store: 'storeOptionGroup',
-                            // x: 10,
-                            // y: 220,
-                            // width: PHONE ? screensize.width-45 : screensize.width/3-45,
-                            // height: 100,
-                            // hideHeaders: true,
-                            // columns: [{
-                                // xtype: 'gridcolumn',
-                                // dataIndex: 'name',
-                                // width: 150,
-                            // }]
-                        // }, {
-                            // xtype: 'gridpanel',
-                            // id: 'gridOption',
-                            // store: 'storeOption',
-                            // x: 10,
-                            // y: 330,
-                            // width: PHONE ? screensize.width-45 : screensize.width/3-45,
-                            // height: 100,
-                            // hidden: true,
-                            // hideHeaders: true,
-                            // columns: [{
-                                // xtype: 'gridcolumn',
-                                // dataIndex: 'default',
-                                // width: 20,
-                            // }, {
-                                // xtype: 'gridcolumn',
-                                // dataIndex: 'name',
-                                // width: 150,
-                            // }]
                         }]
                     }, {
                         region: 'center',
@@ -180,38 +142,12 @@ Ext.onReady(function () {
         },
         afterRefresh: function() {
             load_data(function() {
-                // var store = Ext.getStore('storeChoiceGroup');
-                // for (var choicegroupcode in data.ChoiceGroups) {
-                    // var choicegroup = data.ChoiceGroups[choicegroupcode];
-                    // store.add({ 
-                        // choicegroupcode: choicegroup.ChoiceGroupCode,
-                        // name: choicegroup.Name,
-                    // });
-                // }
-                // store.add({
-                    // choicegroupcode: '<< new >>',
-                    // name: '<< new >>',
-                // });
                 render_menu();
             });
         },
     });
     
     function createStore() {
-        // Ext.create('Ext.data.Store', {
-            // storeId: 'storeChoiceGroup',
-            // fields:[{
-                // name: 'choicegroupcode', 
-            // }, {
-                // name: 'name', 
-            // }],
-            // proxy: {
-                // type: 'memory',
-                // reader: {
-                    // type: 'json',
-                // }
-            // }
-        // });
         Ext.create('Ext.data.Store', {
             storeId: 'storeGridChoice',
             fields:[{
@@ -226,38 +162,6 @@ Ext.onReady(function () {
                 }
             }
         });
-        // Ext.create('Ext.data.Store', {
-            // storeId: 'storeOptionGroup',
-            // fields:[{
-                // name: 'name', 
-            // }, {
-                // name: 'optiongroupcode',
-            // }, {
-                // name: 'defaultoptioncode',
-            // }],
-            // proxy: {
-                // type: 'memory',
-                // reader: {
-                    // type: 'json',
-                // }
-            // }
-        // });
-        // Ext.create('Ext.data.Store', {
-            // storeId: 'storeOption',
-            // fields:[{
-                // name: 'name', 
-            // }, {
-                // name: 'optioncode',
-            // }, {
-                // name: 'default',
-            // }],
-            // proxy: {
-                // type: 'memory',
-                // reader: {
-                    // type: 'json',
-                // }
-            // }
-        // });
     }
 
     function load_data(callback) {
@@ -392,7 +296,6 @@ Ext.onReady(function () {
                     box.val('category name');
                 }
             });
-            //console.log($(pnlmenu.el.dom).html());
         });
         Ext.getCmp('btnNewItem').on('click', function() {
             var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
@@ -473,66 +376,6 @@ Ext.onReady(function () {
                 item.Price = price;
             }
         });
-        // Ext.getCmp('boxChoiceGroup').on('change', function(control, newvalue, oldvalue) {
-            // if (currentitem) {
-                // if (newvalue == '<< new >>') {
-                    // var config = {
-                        // title: 'Allocated Treaty / Policy',
-                        // constrain: true,
-                        // border: false,
-                        // modal: true,
-                        // items: EditChoiceGroupUi,
-                    // }
-                    // var form = Ext.create('Ext.Window', config);
-                    // form.query('#buttonOk')[0].on('click', function() {
-                        // form.close();
-                    // });
-                    // form.query('#buttonCancel')[0].on('click', function() {
-                        // form.close();
-                    // });
-                    // var store = Ext.getStore('storeEditChoiceGroup');
-                    // store.removeAll();
-                    // store.add({
-                        // name: null,
-                        // price: null,
-                    // });
-                    // form.show();
-                // }
-                // else {
-                    // var item = data.Items[currentitem.attr('itemcode')];
-                    // item.ChoiceGroupCode = newvalue;
-                    // displayGridChoice();
-                // }
-            // }
-        // });
-        // Ext.getCmp('gridOptionGroup').on('selectionchange', function(control, selected, options) {
-            // displayGridOption();
-        // });
-        // Ext.getCmp('gridOption').on('selectionchange', function(control, selected, options) {
-            // if (selected.length == 1) {
-                // var optioncode = selected[0].data.optioncode;
-                // console.log(optioncode);
-                // var store = Ext.getStore('storeOption');
-                // Ext.each(store.getRange(), function(row) {
-                    // if (row.get('optioncode') == optioncode) {
-                        // row.set('default', 'x');
-                        // var item = data.Items[currentitem.attr('itemcode')];
-                        // var sm = Ext.getCmp('gridOptionGroup').getSelectionModel();
-                        // var selected = sm.getLastSelected();
-                        // var optiongroupcode = selected.data.optiongroupcode;
-                        // Ext.each(item.OptionList, function(option) {
-                            // if (option.OptionGroupCode == optiongroupcode) {
-                                // option.DefaultOptionCode = optioncode;
-                            // }
-                        // });
-                    // }
-                    // else {
-                        // row.set('default', null);
-                    // }
-                // });
-                // store.commitChanges();
-            // }
-        // });
         Ext.getCmp('buttonChoiceGroup').on('click', function() {
             LookupChoiceGroup.show(data, function(code) {
                 Ext.getCmp('boxChoiceGroup').setValue(data.ChoiceGroups[code].Name);
@@ -542,26 +385,6 @@ Ext.onReady(function () {
             });
         });
     }
-    
-    // function displayGridOption() {
-        // var sm = Ext.getCmp('gridOptionGroup').getSelectionModel();
-		// if (sm.hasSelection()) {
-            // var selected = sm.getLastSelected();
-			// var optiongroupcode = selected.data.optiongroupcode;
-            // var defaultoptioncode = selected.data.defaultoptioncode;
-            // store = Ext.getStore('storeOption');
-            // store.removeAll();
-            // var optionlist = data.OptionGroups[optiongroupcode].OptionList;
-            // Ext.each(optionlist, function(option) {
-                // store.add({
-                    // name: option.Name,
-                    // optioncode: option.OptionCode,
-                    // default: (option.OptionCode==defaultoptioncode)?'x':null,
-                // });
-            // });
-		// }
-        // Ext.getCmp('gridOption').show();
-    // }
     
     function displayGridChoice() {
         var item = data.Items[currentitem.attr('itemcode')];
@@ -601,18 +424,6 @@ Ext.onReady(function () {
         }
         displayGridChoice();
         displayItemOption(item);
-        // store = Ext.getStore('storeOptionGroup');
-        // store.removeAll();
-        // var optionlist = item.OptionList;
-        // Ext.each(optionlist, function(option) {
-            // var optiongroup = data.OptionGroups[option.OptionGroupCode];
-            // store.add({
-                // name: optiongroup.Name,
-                // optiongroupcode: optiongroup.OptionGroupCode,
-                // defaultoptioncode: option.DefaultOptionCode,
-            // });
-        // });
-        // Ext.getCmp('gridOption').hide();
     }
     
     function displayItemOption(item) {
