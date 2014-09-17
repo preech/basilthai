@@ -1,0 +1,35 @@
+<NotepadPlus>
+    <Project name="data">
+        <File name="app\models\item_category.rb" />
+        <Folder name="item">
+            <File name="app\models\item.rb" />
+            <File name="app\models\item_option.rb" />
+        </Folder>
+        <Folder name="choice_group">
+            <File name="app\models\choice_group.rb" />
+            <File name="app\models\choice.rb" />
+        </Folder>
+        <Folder name="option_group">
+            <File name="app\models\option_group.rb" />
+            <File name="app\models\option.rb" />
+        </Folder>
+    </Project>
+    <Project name="food_menu">
+        <File name="app\assets\javascripts\food_menu\edit_choice_group.js" />
+        <File name="app\assets\javascripts\food_menu\edit_choice_group.ui.js" />
+        <File name="app\assets\javascripts\food_menu\edit_option_default.js" />
+        <File name="app\assets\javascripts\food_menu\edit_option_default.ui.js" />
+        <File name="app\assets\javascripts\food_menu\edit_option_group.js" />
+        <File name="app\assets\javascripts\food_menu\edit_option_group.ui.js" />
+        <File name="app\assets\javascripts\food_menu\lookup_choice_group.js" />
+        <File name="app\assets\javascripts\food_menu\lookup_choice_group.ui.js" />
+        <File name="app\assets\javascripts\food_menu\lookup_option_group.js" />
+        <File name="app\assets\javascripts\food_menu\lookup_option_group.ui.js" />
+        <File name="app\assets\javascripts\food_menu\main.js" />
+        <File name="app\controllers\food_menu_controller.rb" />
+    </Project>
+    <Project name="pos_order">
+        <File name="app\assets\javascripts\pos_order\main.js" />
+        <File name="app\controllers\pos_order_controller.rb" />
+    </Project>
+</NotepadPlus>
