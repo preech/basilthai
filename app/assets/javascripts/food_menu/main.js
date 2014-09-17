@@ -497,58 +497,28 @@ Ext.onReady(function () {
    }
     
     var dragdata;
-    function mousedown(e) {
-        if (dragdata) {
-            dragdata.dummy.remove();
-        }
-        dragdata = undefined;
-        var target = $(e.target);
-        if (target.attr('class') != 'categoryname') {
-            var acontrol = target.parents("div[ctype='foodlabel']:eq(0)");
-            if (acontrol.length > 0) {
-                if (currentitem) {
-                    currentitem.removeClass('activeitem');
-                }
-                currentitem = acontrol;
-                currentitem.addClass('activeitem');
-                displayItemPanel();
-                var position = acontrol.position();
-                var offset = acontrol.offset();
-                var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
-                var scrolltop = pnlMenu.scrollTop();
-                dragdata = {
-                    type: 'ITEM',
-                    control: acontrol,
-                    originalposition: {
-                        left: position.left,
-                        top: position.top + scrolltop,
-                        scrolltop: scrolltop,
-                        offsetleft: offset.left,
-                        offsettop: offset.top,
-                    },
-                    clickposition: {
-                        x: e.pageX,
-                        y: e.pageY,
-                    },
-                }
-                var dummy = acontrol.clone();
-                dummy.css('position', 'absolute');
-                dummy.css('left', dragdata.originalposition.left + "px");
-                dummy.css('top', dragdata.originalposition.top + "px");
-                dummy.css('cursor', 'pointer');
-                pnlMenu.append(dummy);
-                dragdata.dummy = dummy;
-                dragdata.control.css('visibility', 'hidden');
+    $(document).bind({
+        mousedown: function(e) {
+            if (dragdata) {
+                dragdata.dummy.remove();
             }
-            else {
-                var acontrol = target.parents("table[ctype='foodpanel']:eq(0)");
+            dragdata = undefined;
+            var target = $(e.target);
+            if (target.attr('class') != 'categoryname') {
+                var acontrol = target.parents("div[ctype='foodlabel']:eq(0)");
                 if (acontrol.length > 0) {
+                    if (currentitem) {
+                        currentitem.removeClass('activeitem');
+                    }
+                    currentitem = acontrol;
+                    currentitem.addClass('activeitem');
+                    displayItemPanel();
                     var position = acontrol.position();
                     var offset = acontrol.offset();
                     var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
                     var scrolltop = pnlMenu.scrollTop();
                     dragdata = {
-                        type: 'CATEGORY',
+                        type: 'ITEM',
                         control: acontrol,
                         originalposition: {
                             left: position.left,
@@ -563,151 +533,156 @@ Ext.onReady(function () {
                         },
                     }
                     var dummy = acontrol.clone();
-                    dummy.width(acontrol.width());
-                    dummy.height(acontrol.height());
                     dummy.css('position', 'absolute');
                     dummy.css('left', dragdata.originalposition.left + "px");
                     dummy.css('top', dragdata.originalposition.top + "px");
                     dummy.css('cursor', 'pointer');
-                    dummy.find('input').css('cursor', 'pointer');
                     pnlMenu.append(dummy);
                     dragdata.dummy = dummy;
                     dragdata.control.css('visibility', 'hidden');
                 }
-            }
-        }
-    }
-    function mousemove(e) {
-        if (dragdata) {
-            if (dragdata.type == 'ITEM') {
-                var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
-                var diffx = e.pageX - dragdata.originalposition.offsetleft - 5;
-                var diffy = e.pageY - dragdata.originalposition.offsettop - dragdata.originalposition.scrolltop + pnlMenu.scrollTop() - 5;
-                dragdata.dummy.css('left', (dragdata.originalposition.left + diffx) + 'px');
-                dragdata.dummy.css('top', (dragdata.originalposition.top + diffy) + 'px');
-            }
-            else if (dragdata.type == 'CATEGORY') {
-                var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
-                var diffy = e.pageY - dragdata.originalposition.offsettop - dragdata.originalposition.scrolltop + pnlMenu.scrollTop() - 5;
-                dragdata.dummy.css('top', (dragdata.originalposition.top + diffy) + 'px');
-            }
-        }
-    }
-    function mouseup(e) {
-        message(e.pageX);
-        if (dragdata) {
-            if (dragdata.type == 'ITEM') {
-                var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
-                var foodpanels = pnlMenu.find("table[ctype='foodpanel']");
-                $.each(foodpanels, function(index, element) {
-                    var foodpanel = $(element);
-                    var position = foodpanel.offset();
-                    var left = position.left;
-                    var right = position.left + foodpanel.width();
-                    var top = position.top;
-                    var bottom = position.top + foodpanel.height();
-                    if (left <= e.pageX && e.pageX <= right && top <= e.pageY && e.pageY <= bottom) {
-                        var effindex = -1;
-                        var foodlabels = foodpanel.find("[ctype='foodlabel']");
-                        $.each(foodlabels, function(index, element) {
-                            var foodlabel = $(element);
-                            var position = foodlabel.offset();
-                            var rightpos = position.left + foodlabel.width();
-                            if (e.pageX > rightpos) {
-                                effindex = index;
-                            }
-                        });
-                        var itemcode = dragdata.control.attr('itemcode');
-                        var item = data.Items[itemcode];
-                        var style = "width:" + 60*itemratio + "px;height:" + 60*itemratio + "px;margin:" + 10*itemratio + "px;font-size:80%";
-                        tag = "<div ctype=foodlabel class='foodlabel' style='" + style + "' id=" + item.ItemCode + " itemcode=" + item.ItemCode + "><table cellpadding=0 cellspacint=0 style='text-align:center' width=100% height=100%><tr><td><span>" + item.Name.replace(/\n/g, "<br>") + "</span></td></tr></table></div>";
-                        if (effindex >=0) {
-                            foodlabels.eq(effindex).after(tag);
-                            var newitem = foodlabels.eq(effindex).next();
+                else {
+                    var acontrol = target.parents("table[ctype='foodpanel']:eq(0)");
+                    if (acontrol.length > 0) {
+                        var position = acontrol.position();
+                        var offset = acontrol.offset();
+                        var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
+                        var scrolltop = pnlMenu.scrollTop();
+                        dragdata = {
+                            type: 'CATEGORY',
+                            control: acontrol,
+                            originalposition: {
+                                left: position.left,
+                                top: position.top + scrolltop,
+                                scrolltop: scrolltop,
+                                offsetleft: offset.left,
+                                offsettop: offset.top,
+                            },
+                            clickposition: {
+                                x: e.pageX,
+                                y: e.pageY,
+                            },
                         }
-                        else {
-                            if (foodlabels.length == 0) {
-                                foodpanel.find('td').eq(1).append(tag);
-                                var newitem = foodpanel.find("[ctype='foodlabel']").eq(0);
+                        var dummy = acontrol.clone();
+                        dummy.width(acontrol.width());
+                        dummy.height(acontrol.height());
+                        dummy.css('position', 'absolute');
+                        dummy.css('left', dragdata.originalposition.left + "px");
+                        dummy.css('top', dragdata.originalposition.top + "px");
+                        dummy.css('cursor', 'pointer');
+                        dummy.find('input').css('cursor', 'pointer');
+                        pnlMenu.append(dummy);
+                        dragdata.dummy = dummy;
+                        dragdata.control.css('visibility', 'hidden');
+                    }
+                }
+            }
+        },
+        mousemove: function(e) {
+            if (dragdata) {
+                if (dragdata.type == 'ITEM') {
+                    var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
+                    var diffx = e.pageX - dragdata.originalposition.offsetleft - 5;
+                    var diffy = e.pageY - dragdata.originalposition.offsettop - dragdata.originalposition.scrolltop + pnlMenu.scrollTop() - 5;
+                    dragdata.dummy.css('left', (dragdata.originalposition.left + diffx) + 'px');
+                    dragdata.dummy.css('top', (dragdata.originalposition.top + diffy) + 'px');
+                }
+                else if (dragdata.type == 'CATEGORY') {
+                    var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
+                    var diffy = e.pageY - dragdata.originalposition.offsettop - dragdata.originalposition.scrolltop + pnlMenu.scrollTop() - 5;
+                    dragdata.dummy.css('top', (dragdata.originalposition.top + diffy) + 'px');
+                }
+            }
+        },
+        mouseup: function(e) {
+            if (dragdata) {
+                if (dragdata.type == 'ITEM') {
+                    var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
+                    var foodpanels = pnlMenu.find("table[ctype='foodpanel']");
+                    $.each(foodpanels, function(index, element) {
+                        var foodpanel = $(element);
+                        var position = foodpanel.offset();
+                        var left = position.left;
+                        var right = position.left + foodpanel.width();
+                        var top = position.top;
+                        var bottom = position.top + foodpanel.height();
+                        if (left <= e.pageX && e.pageX <= right && top <= e.pageY && e.pageY <= bottom) {
+                            var effindex = -1;
+                            var foodlabels = foodpanel.find("[ctype='foodlabel']");
+                            $.each(foodlabels, function(index, element) {
+                                var foodlabel = $(element);
+                                var position = foodlabel.offset();
+                                var rightpos = position.left + foodlabel.width();
+                                if (e.pageX > rightpos) {
+                                    effindex = index;
+                                }
+                            });
+                            var itemcode = dragdata.control.attr('itemcode');
+                            var item = data.Items[itemcode];
+                            var style = "width:" + 60*itemratio + "px;height:" + 60*itemratio + "px;margin:" + 10*itemratio + "px;font-size:80%";
+                            tag = "<div ctype=foodlabel class='foodlabel' style='" + style + "' id=" + item.ItemCode + " itemcode=" + item.ItemCode + "><table cellpadding=0 cellspacint=0 style='text-align:center' width=100% height=100%><tr><td><span>" + item.Name.replace(/\n/g, "<br>") + "</span></td></tr></table></div>";
+                            if (effindex >=0) {
+                                foodlabels.eq(effindex).after(tag);
+                                var newitem = foodlabels.eq(effindex).next();
                             }
                             else {
-                                foodlabels.eq(0).before(tag);
-                                var newitem = foodlabels.eq(0).prev();
+                                if (foodlabels.length == 0) {
+                                    foodpanel.find('td').eq(1).append(tag);
+                                    var newitem = foodpanel.find("[ctype='foodlabel']").eq(0);
+                                }
+                                else {
+                                    foodlabels.eq(0).before(tag);
+                                    var newitem = foodlabels.eq(0).prev();
+                                }
                             }
+                            newitem.addClass('activeitem');
+                            currentitem = newitem;
+                            dragdata.control.remove();
+                            return false;
                         }
-                        newitem.addClass('activeitem');
-                        currentitem = newitem;
-                        dragdata.control.remove();
-                        return false;
-                    }
-                });
-                dragdata.control.css('visibility', 'visible');
-                dragdata.dummy.remove();
-            }
-            else if (dragdata.type == 'CATEGORY') {
-                var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
-                var foodpanels = pnlMenu.find("table[ctype='foodpanel']");
-                var effindex = -1;
-                $.each(foodpanels, function(index, element) {
-                    var foodpanel = $(element);
-                    var position = foodpanel.offset();
-                    var bottom = position.top + foodpanel.height();
-                    if (e.pageY > bottom) {
-                        effindex = index;
-                    }
-                });
-                if (effindex >=0) {
-                    if ((effindex < foodpanels.length && foodpanels[effindex] === dragdata.control[0])
-                        || ((effindex+1) < foodpanels.length && foodpanels[effindex+1] === dragdata.control[0])) {
+                    });
+                    dragdata.control.css('visibility', 'visible');
+                    dragdata.dummy.remove();
+                }
+                else if (dragdata.type == 'CATEGORY') {
+                    var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
+                    var foodpanels = pnlMenu.find("table[ctype='foodpanel']");
+                    var effindex = -1;
+                    $.each(foodpanels, function(index, element) {
+                        var foodpanel = $(element);
+                        var position = foodpanel.offset();
+                        var bottom = position.top + foodpanel.height();
+                        if (e.pageY > bottom) {
+                            effindex = index;
+                        }
+                    });
+                    if (effindex >=0) {
+                        if ((effindex < foodpanels.length && foodpanels[effindex] === dragdata.control[0])
+                            || ((effindex+1) < foodpanels.length && foodpanels[effindex+1] === dragdata.control[0])) {
+                        }
+                        else {
+                            var reference = foodpanels.eq(effindex).parents("table[ctype='foodcontainer']").eq(0);
+                            var source = dragdata.control.parents("table[ctype='foodcontainer']").eq(0)
+                            reference.after(source);
+                        }
                     }
                     else {
-                        var reference = foodpanels.eq(effindex).parents("table[ctype='foodcontainer']").eq(0);
-                        var source = dragdata.control.parents("table[ctype='foodcontainer']").eq(0)
-                        reference.after(source);
+                        if (foodpanels[0] === dragdata.control[0]) {
+                        }
+                        else {
+                            var reference = foodpanels.eq(0).parents("table[ctype='foodcontainer']").eq(0);
+                            var source = dragdata.control.parents("table[ctype='foodcontainer']").eq(0)
+                            reference.before(source);
+                        }
                     }
+                    dragdata.control.css('visibility', 'visible');
+                    dragdata.dummy.remove();
                 }
-                else {
-                    if (foodpanels[0] === dragdata.control[0]) {
-                    }
-                    else {
-                        var reference = foodpanels.eq(0).parents("table[ctype='foodcontainer']").eq(0);
-                        var source = dragdata.control.parents("table[ctype='foodcontainer']").eq(0)
-                        reference.before(source);
-                    }
-                }
-                dragdata.control.css('visibility', 'visible');
-                dragdata.dummy.remove();
             }
+            dragdata = undefined;
+            message('[clear]');
         }
-        dragdata = undefined;
-        //message('[clear]');
-    }
-    if (iDevice) {
-        $(document).bind({
-            touchstart: function(e) {
-                mousedown(e.originalEvent.touches[0]);
-            },
-            touchmove: function(e) {
-                mousemove(e.originalEvent.touches[0]);
-            },
-            touchend: function(e) {
-                mouseup(e);
-            },
-        });
-    }
-    else {
-        $(document).bind({
-            mousedown: function(e) {
-                mousedown(e);
-            },
-            mousemove: function(e) {
-                mousemove(e);
-            },
-            mouseup: function(e) {
-                mouseup(e);
-            },
-        });
-    }
+    });
 });
 
 
