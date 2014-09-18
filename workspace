@@ -14,6 +14,10 @@
             <File name="app\models\option.rb" />
         </Folder>
     </Project>
+    <Project name="lib">
+        <File name="app\assets\javascripts\lib\plugin.js" />
+        <File name="app\assets\javascripts\lib\util.js" />
+    </Project>
     <Project name="food_menu">
         <File name="app\assets\javascripts\food_menu\edit_choice_group.js" />
         <File name="app\assets\javascripts\food_menu\edit_choice_group.ui.js" />

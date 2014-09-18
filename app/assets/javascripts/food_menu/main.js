@@ -689,9 +689,11 @@ Ext.onReady(function () {
             },
             touchmove: function(e) {
                 mousemove(e.originalEvent.touches[0]);
+                e.originalEvent.preventDefault();
+
             },
             touchend: function(e) {
-                mouseup(e);
+                mouseup(e.originalEvent.changedTouches[0]);
             },
         });
     }
