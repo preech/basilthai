@@ -286,7 +286,6 @@ Ext.onReady(function () {
                     }
                 }
             });
-            console.log(categorycode);
             var tag = "<table ctype=foodcontainer style='width:100%;padding:10px;'><tr><td><table style='font-size:" + 100*itemratio + "%' ctype=foodpanel class=foodpanel categorycode='" + categorycode + "'><tr><td><input class=categoryname type=text value='category name'/></td></tr><tr><td></td></tr></table>";
             table.append(tag);
             var box = table.find("input[class='categoryname']:last").eq(0);
