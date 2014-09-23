@@ -4,6 +4,7 @@ Ext.onReady(function () {
     var screensize;
     var ratio;
     var data;
+    var originalData;
     var itemratio = 1;
     var currentitem;
     
@@ -130,6 +131,7 @@ Ext.onReady(function () {
                 buttons: [{
                     id: 'btnSave',
                     text: 'save',
+                    disabled: true,
                 }, {
                     id: 'btnNewCategory',
                     text: 'new category',
@@ -171,6 +173,7 @@ Ext.onReady(function () {
         else {
             Util.requestCallback('GET', null, null, null, null, function(returnData) {
                 data = returnData;
+                originalData = $.extend(true, {}, data);
                 console.log(data);
                 callback();
             });
@@ -295,6 +298,7 @@ Ext.onReady(function () {
                     box.val('category name');
                 }
             });
+            checkChange();
         });
         Ext.getCmp('btnNewItem').on('click', function() {
             var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
@@ -331,6 +335,7 @@ Ext.onReady(function () {
                 currentitem = fooditem;
                 displayItemPanel();
             }
+            checkChange();
         });
         Ext.getCmp('boxItemName').on('blur', function() {
             if (currentitem) {
@@ -338,12 +343,15 @@ Ext.onReady(function () {
                 var item = data.Items[currentitem.attr('itemcode')];
                 item.Name = name;
                 currentitem.find('span').eq(0).html(name.replace(/\n/g, "<br>"));
+                checkChange();
             }
         });
         Ext.getCmp('btnSave').on('click', function() {
             save_menu();
             Util.requestCallback('PUT', null, null, null, data, function(returnData) {
-                Ext.Msg.alert('message', 'ready');
+                Ext.Msg.alert('message', 'ready', function() {
+                    Ext.getCmp('btnSave').disable();
+                });
             });
         });
         Ext.each(Ext.getCmp('radioPriceType').query('radiofield'), function(radiofield) {
@@ -364,6 +372,7 @@ Ext.onReady(function () {
                         else {
                             Ext.getCmp('panelPrice').getLayout().setActiveItem(1);
                         }
+                        checkChange();
                     }
                 }
             });
@@ -373,6 +382,7 @@ Ext.onReady(function () {
                 var price = Ext.getCmp('boxPrice').getValue();
                 var item = data.Items[currentitem.attr('itemcode')];
                 item.Price = price;
+                checkChange();
             }
         });
         Ext.getCmp('buttonChoiceGroup').on('click', function() {
@@ -381,6 +391,7 @@ Ext.onReady(function () {
                 var item = data.Items[currentitem.attr('itemcode')];
                 item.ChoiceGroupCode = code;
                 displayGridChoice();
+                checkChange();
             });
         });
     }
@@ -462,6 +473,7 @@ Ext.onReady(function () {
                     if (item.OptionList[i].OptionGroupCode == optionGroupCode) {
                         item.OptionList.splice(i, 1);
                         displayItemOption(item);
+                        checkChange();
                         break;
                     }
                 }
@@ -475,6 +487,8 @@ Ext.onReady(function () {
                     LookupOptionGroup.show(data, ignoreList, function(option) {
                         item.OptionList.push(option);
                         displayItemOption(item);
+                    }, function() {
+                        checkChange();
                     });
                 }
                 else {
@@ -488,12 +502,72 @@ Ext.onReady(function () {
                     EditOptionDefault.show(data.OptionGroups[optionGroupCode], itemOption, function(result) {
                         if (result) {
                             displayItemOption(item);
+                            checkChange();
                         }
                     });
                 }
             }
         });
-   }
+    }
+    function checkChange() {
+        save_menu();
+        var result = compareObject(originalData, data);
+        if (result == false) {
+            Ext.getCmp('btnSave').enable();
+        }
+        else {
+            Ext.getCmp('btnSave').disable();
+        }
+        console.log(result, originalData, data);
+    }
+    function compareObject(objA, objB) {
+        if (objA == undefined ||
+            objA == null ||
+            typeof objA === 'string' ||
+            typeof objA === 'number') {
+            return (objA == objB);
+        }
+        else if ($.isArray(objA)) {
+            if ($.isArray(objB) && objA.length == objB.length) {
+                for (var i=0; i<objA.length; i++) {
+                    if (compareObject(objA[i], objB[i]) == false) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if ($.type(objA) == 'object') {
+            if ($.type(objB) == 'object') {
+                var listA = [];
+                for (var prop in objA) {
+                    listA.push(prop);
+                }
+                var listB = [];
+                for (var prop in objB) {
+                    listB.push(prop);
+                }
+                if (compareObject(listA, listB) == false) {
+                    return false;
+                }
+                else {
+                    for (var prop in objA) {
+                        if (compareObject(objA[prop], objB[prop]) == false) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        alert($.type(objA));
+    }
     
     var dragdata;
     function mousedown(e) {
@@ -593,7 +667,7 @@ Ext.onReady(function () {
         }
     }
     function mouseup(e) {
-        message(e.pageX);
+        //message(e.pageX);
         if (dragdata) {
             if (dragdata.type == 'ITEM') {
                 var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
@@ -677,6 +751,7 @@ Ext.onReady(function () {
                 dragdata.control.css('visibility', 'visible');
                 dragdata.dummy.remove();
             }
+            checkChange();
         }
         dragdata = undefined;
         //message('[clear]');

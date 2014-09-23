@@ -1,10 +1,12 @@
 LookupOptionGroup = {
     form: null,
     callback: null,
+    closecallback: null,
     ignoreList: [],
-    show: function(data, ignoreList, callbackfn) {
+    show: function(data, ignoreList, callbackfn, closefn) {
         var me = this;
         me.callback = callbackfn;
+        me.closecallback = closefn;
         me.ignoreList = ignoreList;
         var screensize = Util.getScreenSize();
         var config = {
@@ -30,6 +32,11 @@ LookupOptionGroup = {
             }
             else if (newcard.cid == 'SheetSelect') {
                 me.renderSheetSelect(data);
+            }
+        });
+        me.form.on('close', function() {
+            if (me.closecallback) {
+                me.closecallback();
             }
         });
     },
@@ -66,10 +73,10 @@ LookupOptionGroup = {
             }
             EditOptionDefault.show(data.OptionGroups[optionGroupCode], itemOption, function(result) {
                 if (result) {
-                    me.form.close();
                     if (me.callback) {
                         me.callback(itemOption);
                     }
+                    me.form.close();
                 }
             });
         });
