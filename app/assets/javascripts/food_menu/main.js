@@ -8,6 +8,14 @@ Ext.onReady(function () {
     var itemratio = 1;
     var currentitem;
     
+	$(window).on('beforeunload', function() {
+        if (Ext.getCmp('btnSave').disabled) {
+            return ;
+        }
+        else {
+            return 'Data is changed. Are you sure you want to leave?';
+        }
+    });
     Util.initial(this);
     createStore();
     var main = Ext.create('Ta.control.Application', {
