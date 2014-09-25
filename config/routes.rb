@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  root 'menu#index'
   get '/page/*program' => 'program#page'
   match '/food_menu', to: 'food_menu#edit' , via: [:get]
   match '/food_menu', to: 'food_menu#update' , via: [:put]

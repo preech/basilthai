@@ -1,4 +1,8 @@
 <NotepadPlus>
+    <Project name="config">
+        <File name="config\routes.rb" />
+        <File name="config\database.yml" />
+    </Project>
     <Project name="data">
         <File name="app\models\item_category.rb" />
         <Folder name="item">
