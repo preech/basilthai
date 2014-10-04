@@ -716,7 +716,8 @@ Ext.onReady(function () {
                             var foodlabel = $(element);
                             var position = foodlabel.offset();
                             var rightpos = position.left + foodlabel.width();
-                            if (e.pageX > rightpos) {
+                            var bottompos = position.top + foodlabel.height();
+                            if (e.pageY > bottompos || e.pageY > position.top && e.pageX > rightpos ) {
                                 effindex = index;
                             }
                         });

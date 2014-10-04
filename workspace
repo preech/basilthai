@@ -35,6 +35,7 @@
         <File name="app\assets\javascripts\food_menu\lookup_option_group.ui.js" />
         <File name="app\assets\javascripts\food_menu\main.js" />
         <File name="app\controllers\food_menu_controller.rb" />
+        <File name="app\assets\stylesheets\food_menu.css" />
     </Project>
     <Project name="pos_order">
         <File name="app\assets\javascripts\pos_order\main.js" />
