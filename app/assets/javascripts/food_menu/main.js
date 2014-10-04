@@ -7,6 +7,7 @@ Ext.onReady(function () {
     var originalData;
     var itemratio = 1;
     var currentitem;
+    var currentcategory;
     
 	$(window).on('beforeunload', function() {
         if (Ext.getCmp('btnSave').disabled) {
@@ -216,7 +217,6 @@ Ext.onReady(function () {
             itemcategoryseqno++;
         });
         data.ItemCategories = itemcategories;
-        console.log(data);
     }
     
     function render_menu() {
@@ -306,6 +306,19 @@ Ext.onReady(function () {
                     box.val('category name');
                 }
             });
+            currentcategory = box.parents("table[ctype='foodcontainer']:eq(0)");
+            box.focus();
+            Ext.getCmp('panelEditItem').disable();
+            if (currentitem) {
+                currentitem.removeClass('activeitem');
+                currentitem = undefined;
+                Ext.getCmp('boxItemName').setRawValue(null);
+                Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
+                Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
+                Ext.getCmp('boxPrice').setValue(null);
+                Ext.getCmp('boxChoiceGroup').setValue(null);
+                Ext.getCmp('panelOptionGroup').update(null);
+            }
             checkChange();
         });
         Ext.getCmp('btnNewItem').on('click', function() {
@@ -335,7 +348,12 @@ Ext.onReady(function () {
                     var fooditem = currentitem.next();
                 }
                 else {
-                    var itemparent = foodpanels.eq(0).find('td').eq(1);
+                    if (currentcategory) {
+                        var itemparent = currentcategory.find('td').eq(1);
+                    }
+                    else {
+                        var itemparent = foodpanels.eq(0).find('td').eq(1);
+                    }
                     itemparent.append(tag);
                     var fooditem = itemparent.find("div[ctype='foodlabel']:last");
                 }
@@ -526,7 +544,6 @@ Ext.onReady(function () {
         else {
             Ext.getCmp('btnSave').disable();
         }
-        console.log(result, originalData, data);
     }
     function compareObject(objA, objB) {
         if (objA == undefined ||
@@ -592,6 +609,7 @@ Ext.onReady(function () {
                 }
                 currentitem = acontrol;
                 currentitem.addClass('activeitem');
+                currentcategory = currentitem.parents("table[ctype='foodcontainer']:eq(0)");
                 displayItemPanel();
                 var position = acontrol.position();
                 var offset = acontrol.offset();
