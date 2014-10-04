@@ -307,7 +307,6 @@ Ext.onReady(function () {
                 }
             });
             currentcategory = box.parents("table[ctype='foodcontainer']:eq(0)");
-            box.focus();
             Ext.getCmp('panelEditItem').disable();
             if (currentitem) {
                 currentitem.removeClass('activeitem');
@@ -631,6 +630,7 @@ Ext.onReady(function () {
                     },
                 }
                 var dummy = acontrol.clone();
+                dummy.removeAttr('ctype')
                 dummy.css('position', 'absolute');
                 dummy.css('left', dragdata.originalposition.left + "px");
                 dummy.css('top', dragdata.originalposition.top + "px");
@@ -640,7 +640,7 @@ Ext.onReady(function () {
                 dragdata.control.css('visibility', 'hidden');
             }
             else {
-                var acontrol = target.parents("table[ctype='foodpanel']:eq(0)");
+                var acontrol = target.parents("table[ctype='foodcontainer']:eq(0)");
                 if (acontrol.length > 0) {
                     var position = acontrol.position();
                     var offset = acontrol.offset();
@@ -662,8 +662,7 @@ Ext.onReady(function () {
                         },
                     }
                     var dummy = acontrol.clone();
-                    dummy.width(acontrol.width());
-                    dummy.height(acontrol.height());
+                    dummy.removeAttr('ctype')
                     dummy.css('position', 'absolute');
                     dummy.css('left', dragdata.originalposition.left + "px");
                     dummy.css('top', dragdata.originalposition.top + "px");
@@ -676,7 +675,7 @@ Ext.onReady(function () {
             }
         }
     }
-    function mousemove(e) {
+    function mousemove(e, originalEvent) {
         if (dragdata) {
             if (dragdata.type == 'ITEM') {
                 var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
@@ -684,16 +683,21 @@ Ext.onReady(function () {
                 var diffy = e.pageY - dragdata.originalposition.offsettop - dragdata.originalposition.scrolltop + pnlMenu.scrollTop() - 5;
                 dragdata.dummy.css('left', (dragdata.originalposition.left + diffx) + 'px');
                 dragdata.dummy.css('top', (dragdata.originalposition.top + diffy) + 'px');
+                if (originalEvent) {
+                    originalEvent.preventDefault();
+                }
             }
             else if (dragdata.type == 'CATEGORY') {
                 var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom).children(":eq(0)");
                 var diffy = e.pageY - dragdata.originalposition.offsettop - dragdata.originalposition.scrolltop + pnlMenu.scrollTop() - 5;
                 dragdata.dummy.css('top', (dragdata.originalposition.top + diffy) + 'px');
+                if (originalEvent) {
+                    originalEvent.preventDefault();
+                }
             }
         }
     }
     function mouseup(e) {
-        //message(e.pageX);
         if (dragdata) {
             if (dragdata.type == 'ITEM') {
                 var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
@@ -745,7 +749,7 @@ Ext.onReady(function () {
             }
             else if (dragdata.type == 'CATEGORY') {
                 var pnlMenu = $(Ext.getCmp('pnlMenu').el.dom);
-                var foodpanels = pnlMenu.find("table[ctype='foodpanel']");
+                var foodpanels = pnlMenu.find("table[ctype='foodcontainer']");
                 var effindex = -1;
                 $.each(foodpanels, function(index, element) {
                     var foodpanel = $(element);
@@ -760,8 +764,8 @@ Ext.onReady(function () {
                         || ((effindex+1) < foodpanels.length && foodpanels[effindex+1] === dragdata.control[0])) {
                     }
                     else {
-                        var reference = foodpanels.eq(effindex).parents("table[ctype='foodcontainer']").eq(0);
-                        var source = dragdata.control.parents("table[ctype='foodcontainer']").eq(0)
+                        var reference = foodpanels.eq(effindex);
+                        var source = dragdata.control;
                         reference.after(source);
                     }
                 }
@@ -769,8 +773,8 @@ Ext.onReady(function () {
                     if (foodpanels[0] === dragdata.control[0]) {
                     }
                     else {
-                        var reference = foodpanels.eq(0).parents("table[ctype='foodcontainer']").eq(0);
-                        var source = dragdata.control.parents("table[ctype='foodcontainer']").eq(0)
+                        var reference = foodpanels.eq(0);
+                        var source = dragdata.control;
                         reference.before(source);
                     }
                 }
@@ -788,9 +792,7 @@ Ext.onReady(function () {
                 mousedown(e.originalEvent.touches[0]);
             },
             touchmove: function(e) {
-                mousemove(e.originalEvent.touches[0]);
-                e.originalEvent.preventDefault();
-
+                mousemove(e.originalEvent.touches[0], e.originalEvent);
             },
             touchend: function(e) {
                 mouseup(e.originalEvent.changedTouches[0]);
