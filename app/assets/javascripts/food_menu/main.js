@@ -381,14 +381,8 @@ Ext.onReady(function () {
         });
         Ext.each(Ext.getCmp('radioPriceType').query('radiofield'), function(radiofield) {
             radiofield.on({
-                focus: function(control) {
-                    control.focused = true;
-                },
-                blur: function(control) {
-                    control.focused = false;
-                },
                 change: function(control, newvalue, oldvalue) {
-                    if (control.focused == true && newvalue == true && currentitem) {
+                    if (newvalue == true && currentitem) {
                         var item = data.Items[currentitem.attr('itemcode')];
                         item.PriceType = control.inputValue;
                         if (item.PriceType == 'FIX') {
