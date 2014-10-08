@@ -53,6 +53,7 @@ LookupOptionGroup = {
                     var option = optionGroup.OptionList[i];
                     tag += "<tr>";
                     tag += "<td style='border-top:1px dotted blue;text-align:center'>" + option.Name + "</td>";
+                    tag += "<td style='border-top:1px dotted blue;text-align:right'>" + option.Price + "</td>";
                     tag += "</tr>";
                 }
                 tag += "</table>";
@@ -92,7 +93,8 @@ LookupOptionGroup = {
             tag += "<table class='tabledetail' style='position:relative;left:0px;top:-20px;' cellpadding=0 cellspacing=0>";
             for (var i=0; i<optionGroup.OptionList.length; i++) {
                 var option = optionGroup.OptionList[i];
-                tag += "<tr><td style='border-top:1px dotted blue;text-align:center'>" + option.Name + "</td></tr>";
+                tag += "<tr><td style='border-top:1px dotted blue;text-align:center'>" + option.Name + "</td>";
+                tag += "<td style='border-top:1px dotted blue;text-align:right'>" + option.Price + "</td></tr>";
             }
             tag += "</table>";
             tag += "</div>";

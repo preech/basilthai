@@ -7,6 +7,9 @@ Ext.define('modelEditOptionGroup', {
     }, {
         name: 'name', 
         type: 'string',
+    }, {
+        name: 'price',
+        type: 'string',
     }],
 });
 
@@ -31,6 +34,7 @@ var EditOptionGroupEditor = Ext.create('Ext.grid.plugin.CellEditing', {
                         e.store.add({
                             code: null,
                             name: null,
+                            price: null,
                         });
                     }
                 }
@@ -69,6 +73,18 @@ var EditOptionGroupUi = {
                 editor: {
                     allowBlank: true
                 },
+            }, {
+                text: 'Price',
+                dataIndex: 'price',
+                sortable: false,
+                hideable: false,
+                editor: {
+                    xtype: 'numberfield',
+                    allowBlank: true,
+                    minValue: 0,
+                    maxValue: 100000,
+                    hideTrigger: true,
+                }
             }]
         }, {
             xtype: 'panel',

@@ -15,11 +15,13 @@ EditOptionGroup = {
             store.add({
                 code: option.OptionCode,
                 name: option.Name,
+                price: option.Price,
             });
         }
         store.add({
             code: null,
             name: null,
+            price: null,
         });
         me.form.show();
     },
@@ -32,6 +34,7 @@ EditOptionGroup = {
             Ext.each(store.getRange(), function(record) {
                 var code = record.get('code');
                 var name = record.get('name');
+                var price = Util.toFloat(record.get('price'));
                 if (name) {
                     if (!code) {
                         var code = Util.genCode(8, function(value) {
@@ -46,6 +49,7 @@ EditOptionGroup = {
                     data.OptionList.push({
                         OptionCode: code,
                         Name: name,
+                        Price: price,
                     });
                 }
             });

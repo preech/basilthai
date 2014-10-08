@@ -102,7 +102,6 @@ Ext.onReady(function () {
                         optiontag += record.data.choicename;
                     }
                     var fooditem = data.Items[record.data.foodid];
-                    console.log(fooditem);
                     if (record.data.option) {
                         for (var i=0; i<fooditem.OptionList.length; i++) {
                             var option = fooditem.OptionList[i];
@@ -121,12 +120,6 @@ Ext.onReady(function () {
                             }
                         }
                     }
-                    // if (record.data.option) {
-                        // if (optiontag) {
-                            // optiontag += ' , ';
-                        // }
-                        // optiontag += record.data.optionname;
-                    // }
                     if (optiontag) {
                         tag += "<br><span style='font-size:" + 70*ratio + "%'>" + optiontag + "</span>";
                     }
@@ -503,19 +496,12 @@ Ext.onReady(function () {
             var record = sm.getLastSelected();
             var foodid = record.get('foodid');
             var fooditem = data.Items[foodid];
-            // Ext.each(data.Items, function(item) {
-                // if (item.id == foodid) {
-                    // fooditem = item;
-                    // return false;
-                // }
-            // });
             if (comp.data.choice) {
                 record.set('choice', comp.data.choice);
                 record.set('choicename', comp.data.name);
             }
             if (comp.data.option) {
                 var optionarray = record.get('option');
-                console.log(comp.data.optiongroupcode);
                 Ext.each(fooditem.OptionList, function(itemoption, index) {
                     if (itemoption.OptionGroupCode == comp.data.optiongroupcode) {
                         var defaultoption = itemoption.DefaultOptionCode;
@@ -529,20 +515,37 @@ Ext.onReady(function () {
                     }
                 });
                 record.set('option', optionarray);
-                console.log(optionarray);
-                // var defaultoption = fooditem.OptionList[0].DefaultOptionCode;
-                // if (comp.data.option == defaultoption) {
-                    // record.set('option', null);
-                    // record.set('optionname', null);
-                // }
-                // else {
-                    // record.set('option', [comp.data.option]);
-                    // record.set('optionname', comp.data.name);
-                // }
             }
-            if (comp.data.price >= 0) {
-                record.set('price', comp.data.price);
+            var price = 0;
+            if (fooditem.PriceType == 'FIX') {
+                price = parseFloat(fooditem.Price||0);
             }
+            else {
+                Ext.each(data.ChoiceGroups[fooditem.ChoiceGroupCode].ChoiceList, function(choice) {
+                    if (choice.ChoiceCode == record.get('choice')) {
+                        price = parseFloat(choice.Price||0);
+                        return false;
+                    }
+                });
+            }
+            var optionarray = record.get('option');
+            Ext.each(fooditem.OptionList, function(itemoption, index) {
+                if (optionarray[index]) {
+                    optioncode = optionarray[index];
+                }
+                else {
+                    optioncode = itemoption.DefaultOptionCode;
+                }
+                Ext.each(data.OptionGroups[itemoption.OptionGroupCode].OptionList, function(option) {
+                    if (option.OptionCode == optioncode) {
+                        if (option.Price) {
+                            price = price + parseFloat(option.Price||0);
+                        }
+                        return false;
+                    }
+                });
+            });
+            record.set('price', price);
             record.set('displaytag', null);
             record.set('displayqty', null);
             Ext.getStore('orderlistStore').commitChanges();
@@ -550,16 +553,9 @@ Ext.onReady(function () {
         }
     }
     function showoption(foodid, currentchoice, currentoption) {
-        console.log([foodid, currentchoice, currentoption]);
         var optionpanel = Ext.getCmp('pnlOption');
         optionpanel.removeAll();
         var fooditem = data.Items[foodid];
-        // Ext.each(data.Items, function(item) {
-            // if (item.id == foodid) {
-                // fooditem = item;
-                // return false;
-            // }
-        // });
         var choicecount = 0;
         var optioncount = 0;
         if (fooditem.PriceType == 'CHOICE') {
@@ -610,7 +606,6 @@ Ext.onReady(function () {
                 });
                 optionpanel.add(panel);
                 Ext.each(optionlist, function(item, index) {
-                    console.log([item, index]);
                     var choice = Ext.create('Ext.panel.Panel', {
                         width: 50*optionratio,
                         height: 50*optionratio,
@@ -622,6 +617,7 @@ Ext.onReady(function () {
                             optiongroupcode: optiongroup.OptionGroupCode,
                             option: item.OptionCode,
                             name: item.Name,
+                            price: item.Price,
                         },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>' + item.Name + '</span></td></tr></table>',
                     });
@@ -696,7 +692,6 @@ Ext.onReady(function () {
                 var count = store.getCount();
                 Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
                 updatetotal();
-                //showoption(itemdata.id, compx.data.choice, null);
                 form.close();
             }
             form.show(null, function() {
@@ -711,7 +706,6 @@ Ext.onReady(function () {
             var count = store.getCount();
             Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
             updatetotal();
-            //showoption(itemdata.ItemCode, null, null);
         }
     }
     function renderMenu() {
@@ -814,213 +808,6 @@ Ext.onReady(function () {
                 console.log(data);
                 callback();
             });
-            // Util.call('load_data', function(returndata) {
-                // console.log($.parseJSON(returndata));
-                // data = {
-                    // groups: {
-                        // APPETIZER: { name: 'Appetizers' },
-                        // THAISALAD: { name: 'Thai Salads' },
-                        // SOUP: { name: 'Soups' },
-                        // NOODLESOUP: { name: 'Noodle Soups' },
-                        // FRIEDNOODLE: { name: 'Stir-fried Noodles' },
-                        // ENTREE: { name: 'Entrees' },
-                        // CURRY: { name: 'Curry' },
-                        // RICEDISH: { name: 'Thai Style Rice Dishes' },
-                        // FRIEDRICE: { name: 'Thai Style Fried Rice' },
-                        // SIDEORDER: { name: 'Side Orders' },
-                        // DESSERT: { name: 'Desserts' },
-                        // COLDBEVERAGE: { name: 'Cold Beverages' },
-                        // HOTBEVERAGE: { name: 'Hot Beverages' },
-                    // },
-                    // pricesets: {
-                        // CURRY: [
-                            // { choice: 'Chicken', price: 8.45 },
-                            // { choice: 'Beef', price: 8.45 },
-                            // { choice: 'Pork', price: 8.45 },
-                            // { choice: 'Tofu', price: 8.45 },
-                            // { choice: 'Shrimp', price: 10.95 }],
-                        // RICEDISH: [
-                            // { choice: 'Chicken', price: 8.95 },
-                            // { choice: 'Beef', price: 8.95 },
-                            // { choice: 'Pork', price: 8.95 },
-                            // { choice: 'Tofu', price: 8.95 },
-                            // { choice: 'Shrimp', price: 11.45 }],
-                        // KRATIAM: [
-                            // { choice: 'Chicken', price: 8.95 },
-                            // { choice: 'Beef', price: 8.95 },
-                            // { choice: 'Pork', price: 8.95 }],
-                        // FRIEDRICE: [
-                            // { choice: 'Chicken', price: 8.45 },
-                            // { choice: 'Beef', price: 8.45 },
-                            // { choice: 'Pork', price: 8.45 },
-                            // { choice: 'Tofu', price: 8.45 },
-                            // { choice: 'Shrimp', price: 10.95 }],
-                        // TROPICAL: [
-                            // { choice: 'Chicken', price: 8.95 },
-                            // { choice: 'Beef', price: 8.95 },
-                            // { choice: 'Pork', price: 8.95 },
-                            // { choice: 'Tofu', price: 8.95 },
-                            // { choice: 'Shrimp', price: 11.45 }],
-                        // SAUCE: [
-                            // { choice: 'Small', price: 1.50 },
-                            // { choice: 'Large', price: 2.50 }],
-                        // SPRINGROLL: [
-                            // { choice: 'Pork', price: 2.95 },
-                            // { choice: 'Veg', price: 2.95 }],
-                        // SOUP: [
-                            // { choice: 'Chicken', price: 4.25 },
-                            // { choice: 'Tofu', price: 4.25 },
-                            // { choice: 'Shrimp', price: 5.45 }],
-                        // BEEFSOUP: [
-                            // { choice: 'Stewed', price: 7.95 },
-                            // { choice: 'Sliced', price: 7.95 }],
-                        // NOODLESOUP: [
-                            // { choice: 'Chicken', price: 7.95 },
-                            // { choice: 'Beef', price: 7.95 },
-                            // { choice: 'Pork', price: 7.95 },
-                            // { choice: 'Tofu', price: 7.95 },
-                            // { choice: 'Shrimp', price: 10.45 }],
-                        // FRIEDNOODLE: [
-                            // { choice: 'Chicken', price: 7.95 },
-                            // { choice: 'Beef', price: 7.95 },
-                            // { choice: 'Pork', price: 7.95 },
-                            // { choice: 'Tofu', price: 7.95 },
-                            // { choice: 'Shrimp', price: 10.45 }],
-                        // LADNAR: [
-                            // { choice: 'Chicken', price: 8.95 },
-                            // { choice: 'Beef', price: 8.95 },
-                            // { choice: 'Pork', price: 8.95 },
-                            // { choice: 'Tofu', price: 8.95 },
-                            // { choice: 'Shrimp', price: 11.45 }],
-                        // BASIL: [
-                            // { choice: 'Chicken', price: 7.95 },
-                            // { choice: 'Tofu', price: 7.95 },
-                            // { choice: 'Shrimp', price: 10.45 }],
-                        // NOBEEF: [
-                            // { choice: 'Chicken', price: 7.95 },
-                            // { choice: 'Pork', price: 7.95 },
-                            // { choice: 'Tofu', price: 7.95 },
-                            // { choice: 'Shrimp', price: 10.45 }],
-                        // THAIBBQ: [
-                            // { choice: 'Rice', price: 7.95 },
-                            // { choice: 'Noodle', price: 7.95 }],
-                        // NOPORK: [
-                            // { choice: 'Chicken', price: 7.95 },
-                            // { choice: 'Beef', price: 7.95 },
-                            // { choice: 'Tofu', price: 7.95 },
-                            // { choice: 'Shrimp', price: 10.45 }],
-                        // PRARAM: [
-                            // { choice: 'Chicken', price: 8.45 },
-                            // { choice: 'Tofu', price: 8.45 },
-                            // { choice: 'Shrimp', price: 10.45 }],
-                        // PADTHAI: [
-                            // { choice: 'Chicken', price: 8.45 },
-                            // { choice: 'Beef', price: 8.45 },
-                            // { choice: 'Pork', price: 8.45 },
-                            // { choice: 'Tofu', price: 8.45 },
-                            // { choice: 'Shrimp', price: 10.95 }],
-                        // PEANUT: [
-                            // { choice: 'Chicken', price: 8.95 },
-                            // { choice: 'Beef', price: 8.95 },
-                            // { choice: 'Pork', price: 8.95 },
-                            // { choice: 'Tofu', price: 8.95 },
-                            // { choice: 'Shrimp', price: 11.45 }],
-                        // CASHEW: [
-                            // { choice: 'Chicken', price: 8.95 },
-                            // { choice: 'Tofu', price: 8.95 },
-                            // { choice: 'Shrimp', price: 11.45 }],
-                    // },
-                    // options: {
-                        // SPICY: [
-                            // { option: 'Slightly Spicy' },
-                            // { option: 'Medium Spicy' },
-                            // { option: 'Spicy' }],
-                        // SPICY2: [
-                            // { option: 'Medium Spicy' },
-                            // { option: 'Spicy' }],
-                    // },
-                    // fooditems: [
-                        // { id: 'CHICKENSATAY', name: 'Chicken Satay', group: 'APPETIZER', price: 6.25 },
-                        // { id: 'TOFUSATAY', name: 'Tofu Satay', group: 'APPETIZER', price: 5.45 },
-                        // { id: 'THAISROLL', name: 'Thai Spring Roll', group: 'APPETIZER', price: 'SPRINGROLL' },
-                        // { id: 'FRIEDTOFU', name: 'Fried Tofu', group: 'APPETIZER', price: 2.95 },
-                        // { id: 'FRESHROLL', name: 'Fresh Spring Roll', group: 'APPETIZER', price: 4.25 },
-                        // { id: 'PEANUTROLL', name: 'Peanut Sauce Spring Roll', group: 'APPETIZER', price: 4.95 },
-                        // { id: 'CRABRANGOON', name: 'Crab Rangoon', group: 'APPETIZER', price: 3.95 },
-                        // { id: 'CHICKSTICK', name: 'Chicken Pot Stickers', group: 'APPETIZER', price: 4.25 },
-                        // { id: 'DIMSUM', name: 'Mixed Dimsum', group: 'APPETIZER', price: 4.25 },
-                        // { id: 'FISHCAKE', name: 'Fish Cake', group: 'APPETIZER', price: 4.25 },
-                        // { id: 'BEEFNUMTOK', name: 'Beef Num Tok Salad', group: 'THAISALAD', price: 6.95, option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'PORKNUMTOK', name: 'Pork Num Tok Salad', group: 'THAISALAD', price: 6.95, option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'NOODLESALAD', name: 'Bean Threads Noodle Salad', group: 'THAISALAD', price: 6.95, option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'LARBKAI', name: 'Larb Gai Salad', group: 'THAISALAD', price: 6.95, option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'YUMNEUA', name: 'Yum Neua', group: 'THAISALAD', price: 6.95, option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'YUMMOO', name: 'Yum Moo', group: 'THAISALAD', price: 6.95, option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'TUMTANG', name: 'Cucumber Salad', group: 'THAISALAD', price: 3.50 },
-                        // { id: 'GREENSALAD', name: 'Green Salad', group: 'THAISALAD', price: 4.25 },
-                        // { id: 'TOMYUM', name: 'Tom Yum', group: 'SOUP', price: 'SOUP', option: 'SPICY', defaultoption: 'Slightly Spicy' },
-                        // { id: 'TOMKHA', name: 'Tom Kha', group: 'SOUP', price: 'SOUP', option: 'SPICY', defaultoption: 'Slightly Spicy' },
-                        // { id: 'BEEFNOODLE', name: 'Beef Noodle Soup', group: 'NOODLESOUP', price: 'BEEFSOUP' },
-                        // { id: 'CHICKNOODLE', name: 'Chicken Noodle Soup', group: 'NOODLESOUP', price: 7.95 },
-                        // { id: 'SHRIMPNOODLE', name: 'Shrimp Noodle Soup', group: 'NOODLESOUP', price: 10.45 },
-                        // { id: 'VEGNOODLE', name: 'Vegetable Noodle Soup', group: 'NOODLESOUP', price: 7.95 },
-                        // { id: 'TOMYUMNOODLE', name: 'Tom Yum Noodle Soup', group: 'NOODLESOUP', price: 'NOODLESOUP', option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'EGGNOODLE', name: 'Egg Noodle with BBQ Pork', group: 'NOODLESOUP', price: 8.45 },
-                        // { id: 'PADTHAI', name: 'Pad Thai', group: 'FRIEDNOODLE', price: 'FRIEDNOODLE' },
-                        // { id: 'PADSEEEWE', name: 'Pad See Ewe', group: 'FRIEDNOODLE', price: 'FRIEDNOODLE' },
-                        // { id: 'PADKEEMAO', name: 'Pad Kee Mao', group: 'FRIEDNOODLE', price: 'FRIEDNOODLE', option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'LADNAR', name: 'Lad Nar', group: 'FRIEDNOODLE', price: 'LADNAR' },
-                        // { id: 'BASIL', name: 'Basil', group: 'ENTREE', price: 'BASIL', option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'GARLIC', name: 'Garlic', group: 'ENTREE', price: 'NOBEEF' },
-                        // { id: 'GINGER', name: 'Ginger', group: 'ENTREE', price: 'NOBEEF' },
-                        // { id: 'BBQCHICKEN', name: 'Thai BBQ Chicken', group: 'ENTREE', price: 'THAIBBQ' },
-                        // { id: 'MIXEDVEG', name: 'Mixed Vegetable', group: 'ENTREE', price: 'BASIL' },
-                        // { id: 'BROCCOLI', name: 'Broccoli', group: 'ENTREE', price: 'NOPORK' },
-                        // { id: 'PRARAM', name: 'Praram', group: 'ENTREE', price: 'PRARAM' },
-                        // { id: 'PADTHAISWEET', name: 'Pad Thai Sweet & Sour Sauce', group: 'ENTREE', price: 'PADTHAI' },
-                        // { id: 'PADPREOWWAN', name: 'Pad Preow Wan', group: 'ENTREE', price: 'PADTHAI' },
-                        // { id: 'PEANUTLOVER', name: 'Peanut Sauce Lover', group: 'ENTREE', price: 'PEANUT', option: 'SPICY', defaultoption: 'Slightly Spicy' },
-                        // { id: 'CASHEW', name: 'Cashew', group: 'ENTREE', price: 'CASHEW', option: 'SPICY', defaultoption: 'Slightly Spicy' },
-                        // { id: 'PADWOONSEN', name: 'Pad Woon Sen', group: 'ENTREE', price: 'PEANUT' },
-                        // { id: 'REDCURRY', name: 'Red\nCurry', group: 'CURRY', price: 'CURRY', option: 'SPICY2', defaultoption: 'Medium Spicy' },
-                        // { id: 'GREENCURRY', name: 'Green\nCurry', group: 'CURRY', price: 'CURRY', option: 'SPICY2', defaultoption: 'Medium Spicy' },
-                        // { id: 'MUSSAMUN', name: 'Mussamun\nCurry', group: 'CURRY', price: 'CURRY', option: 'SPICY2', defaultoption: 'Medium Spicy' },
-                        // { id: 'YELLOWCURRY', name: 'Yellow\nCurry', group: 'CURRY', price: 'CURRY', option: 'SPICY2', defaultoption: 'Medium Spicy' },
-                        // { id: 'GANGPA', name: 'Gang Pa', group: 'CURRY', price: 'CURRY', option: 'SPICY2', defaultoption: 'Medium Spicy' },
-                        // { id: 'PANANGCURRY', name: 'Panang\nCurry', group: 'CURRY', price: 'CURRY', option: 'SPICY2', defaultoption: 'Medium Spicy' },
-                        // { id: 'PADKRAPRAOW', name: 'Pad\nKra Praow', group: 'RICEDISH', price: 'RICEDISH', option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'PADPRIK', name: 'Pad\nPrik', group: 'RICEDISH', price: 'RICEDISH', option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'PADPED', name: 'Pad Ped\nNoh Mai', group: 'RICEDISH', price: 'RICEDISH', option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'KRATIAM', name: 'Kratiam\nPrik Thai', group: 'RICEDISH', price: 'KRATIAM' },
-                        // { id: 'THAIOMELET', name: 'Thai\nOmelet', group: 'RICEDISH', price: 7.95 },
-                        // { id: 'VEGOMLET', name: 'Thai\nVeggie\nOmelet', group: 'RICEDISH', price: 7.95 },
-                        // { id: 'BBQPORK', name: 'BBQ Pork\nwith\nRice', group: 'RICEDISH', price: 8.45 },
-                        // { id: 'BASILRICE', name: 'Basil\nFried Rice', group: 'FRIEDRICE', price: 'FRIEDRICE', option: 'SPICY', defaultoption: 'Medium Spicy' },
-                        // { id: 'SUNRISERICE', name: 'Sunrise\nFried Rice', group: 'FRIEDRICE', price: 'FRIEDRICE' },
-                        // { id: 'TROPICALRICE', name: 'Tropical\nFried Rice', group: 'FRIEDRICE', price: 'TROPICAL' },
-                        // { id: 'COMBORICE', name: 'Special Combo\nFried Rice', group: 'FRIEDRICE', price: 9.95 },
-                        // { id: 'SEAFOODRICE', name: 'Sea Food\nFried Rice', group: 'FRIEDRICE', price: 11.45 },
-                        // { id: 'CRAZYRICE', name: 'Crazy\nFried Rice', group: 'FRIEDRICE', price: 11.45, option: 'SPICY', defaultoption: 'Slightly Spicy' },
-                        // { id: 'JUSMINERICE', name: 'Steamed\nJusmine\nRice', group: 'SIDEORDER', price: 2.00 },
-                        // { id: 'STEAMNOODLE', name: 'Steamed\nNoodle', group: 'SIDEORDER', price: 2.25 },
-                        // { id: 'PEANUTSAUCE', name: 'Peanut\nSauce', group: 'SIDEORDER', price: 'SAUCE' },
-                        // { id: 'SOURSAUCE', name: 'Sweet &\nSour\nSauce', group: 'SIDEORDER', price: 'SAUCE' },
-                        // { id: 'CUSTART', name: 'Thai Custard', group: 'DESSERT', price: 2.50 },
-                        // { id: 'BANANACAKE', name: 'Thai Banana Cake', group: 'DESSERT', price: 3.50 },
-                        // { id: 'STICKYRICE', name: 'Thai Custard with Sticky Rice', group: 'DESSERT', price: 3.95 },
-                        // { id: 'STICKYMANGO', name: 'Sweet Sticky Rice with Mango', group: 'DESSERT', price: 4.95 },
-                        // { id: 'SODA', name: 'Soda', group: 'COLDBEVERAGE', price: 1.50 },
-                        // { id: 'FUZE', name: 'Fuze', group: 'COLDBEVERAGE', price: 2.50 },
-                        // { id: 'ICEDTEA', name: 'Thai Iced Tea with Milk', group: 'COLDBEVERAGE', price: 2.50 },
-                        // { id: 'ICEDCOFFEE', name: 'Thai Iced Coffee with Milk', group: 'COLDBEVERAGE', price: 2.50 },
-                        // { id: 'GREENTEA', name: 'Milk Green Tea', group: 'COLDBEVERAGE', price: 2.50 },
-                        // { id: 'MILKTEA', name: 'Bangkok Milk Tea', group: 'COLDBEVERAGE', price: 2.50 },
-                        // { id: 'HOTTEA', name: 'Hot Jasmine Tea', group: 'HOTBEVERAGE', price: 1.50 },
-                        // { id: 'HOTGREENTEA', name: 'Hot Green Tea', group: 'HOTBEVERAGE', price: 1.50 },
-                    // ],
-                // }
-                // callback();
-            // });
         }
     }
 });

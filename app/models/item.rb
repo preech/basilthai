@@ -37,6 +37,7 @@ class Item < ActiveRecord::Base
         optionlist.push({
           :OptionCode => option.option_code,
           :Name => option.name,
+          :Price => option.price,
         });
       end
       optiongrouphash[optiongroup.option_group_code] = {

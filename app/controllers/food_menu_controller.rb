@@ -137,6 +137,7 @@ class FoodMenuController < TemplateController
           child = record.options.build
           child.option_code = childvalue["OptionCode"]
           child.name = childvalue["Name"]
+          child.price = childvalue["Price"]
         end
         record.save!
       end
