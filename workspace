@@ -21,6 +21,7 @@
     <Project name="lib">
         <File name="app\assets\javascripts\lib\plugin.js" />
         <File name="app\assets\javascripts\lib\util.js" />
+        <File name="designer\designer.html" />
     </Project>
     <Project name="food_menu">
         <File name="app\assets\javascripts\food_menu\edit_choice_group.js" />
