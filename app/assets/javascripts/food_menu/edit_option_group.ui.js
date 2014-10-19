@@ -23,25 +23,25 @@ Ext.create('Ext.data.Store', {
         }
     }
 });
-var EditOptionGroupEditor = Ext.create('Ext.grid.plugin.CellEditing', {
-    clicksToEdit: 1,
-    listeners: {
-        edit: function(editor, e) {
-            if (e.colIdx == 0) {
-                if ((e.rowIdx+1) == e.store.getCount()) {
-                    var value = e.record.get('name');
-                    if (value) {
-                        e.store.add({
-                            code: null,
-                            name: null,
-                            price: null,
-                        });
-                    }
-                }
-            }
-        },
-    },
-});
+// var EditOptionGroupEditor = Ext.create('Ext.grid.plugin.CellEditing', {
+    // clicksToEdit: 1,
+    // listeners: {
+        // edit: function(editor, e) {
+            // if (e.colIdx == 0) {
+                // if ((e.rowIdx+1) == e.store.getCount()) {
+                    // var value = e.record.get('name');
+                    // if (value) {
+                        // e.store.add({
+                            // code: null,
+                            // name: null,
+                            // price: null,
+                        // });
+                    // }
+                // }
+            // }
+        // },
+    // },
+// });
 var EditOptionGroupUi = {
     title: 'Edit Option Group',
     constrain: true,
@@ -56,11 +56,12 @@ var EditOptionGroupUi = {
             xtype: 'textfield',
             region: 'north',
             id: 'boxName',
+            emptyText: 'input name here',
         }, {
             xtype: 'grid',
             region: 'center',
             store: 'storeEditOptionGroup',
-            plugins: [EditOptionGroupEditor],
+//            plugins: [EditOptionGroupEditor],
             selModel: {
                 selType: 'cellmodel'
             },

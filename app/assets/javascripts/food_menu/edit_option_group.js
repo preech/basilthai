@@ -5,6 +5,26 @@ EditOptionGroup = {
         var me = this;
         me.callback = callbackfn;
         var screensize = Util.getScreenSize();
+        var EditOptionGroupEditor = Ext.create('Ext.grid.plugin.CellEditing', {
+            clicksToEdit: 1,
+            listeners: {
+                edit: function(editor, e) {
+                    if (e.colIdx == 0) {
+                        if ((e.rowIdx+1) == e.store.getCount()) {
+                            var value = e.record.get('name');
+                            if (value) {
+                                e.store.add({
+                                    code: null,
+                                    name: null,
+                                    price: null,
+                                });
+                            }
+                        }
+                    }
+                },
+            },
+        });
+        EditOptionGroupUi.items[0].items[1].plugins = [EditOptionGroupEditor];
         me.form = Ext.create('Ext.Window', EditOptionGroupUi);
         me.bindEvent(data);
         me.getCmp('boxName').setValue(data.Name);
