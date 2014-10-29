@@ -436,7 +436,13 @@ Ext.onReady(function () {
                         var store = Ext.getStore('orderlistStore');
                         store.removeAll();
                         var optionpanel = Ext.getCmp('pnlOption');
-                        optionpanel.removeAll();
+                        optionpanel.removeAll();                        
+                        // ConfirmOrder.show(data, function(code) {
+                            // var store = Ext.getStore('orderlistStore');
+                            // store.removeAll();
+                            // var optionpanel = Ext.getCmp('pnlOption');
+                            // optionpanel.removeAll();
+                        // });
                         break;
                 }
             }

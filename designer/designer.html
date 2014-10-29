@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Basilthai</title>
-  <link href="../app/assets/stylesheets/application.css?body=1" media="all" rel="stylesheet" />
-  <link href="../app/assets/stylesheets/ext-theme-neptune-all.css?body=1" media="all" rel="stylesheet" />
-  <script type="text/javascript" src="../app/assets/javascripts/jquery-1.8.1.min.js?body=1"></script>
+  <title>Designer</title>
+  <link href="../app/assets/stylesheets/application.css" media="all" rel="stylesheet" />
+  <link href="ext-theme-neptune-all.css" media="all" rel="stylesheet" />
+  <script type="text/javascript" src="../app/assets/javascripts/jquery-1.8.1.min.js"></script>
   <script type="text/javascript" src="../app/assets/javascripts/ext-all.js"></script>
-  <script type="text/javascript" src="../app/assets/javascripts/food_menu/edit_choice_group.ui.js"></script>
+
 </head>
 <body>
 
+<link href="../app/assets/stylesheets/pos_order.css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="../app/assets/javascripts/pos_order/confirm_order.ui.js"></script>
 <script type="text/javascript">
 	Ext.onReady(function (){
-        Ext.create('Ext.Window', EditChoiceGroupUi).show();
+        Ext.create('Ext.Window', ConfirmOrderUi).show();
 //		Ext.create('Ext.Viewport', {
 //			items: [EditChoiceGroupUi],
 //		});
