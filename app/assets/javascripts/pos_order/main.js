@@ -715,23 +715,63 @@ Ext.onReady(function () {
         }
     }
     function renderMenu() {
-        var oldgroup;
-        var tag = "";
-        var firsttime = true;
+        var tempcategoryitem = {}
+        for (var itemcategorycode in data.ItemCategories) {
+            var itemcategory = data.ItemCategories[itemcategorycode];
+            tempcategoryitem[itemcategorycode] = [];
+        }
         for (var itemcode in data.Items) {
             var item = data.Items[itemcode];
-            if (oldgroup != item.CategoryCode) {
-                if (!firsttime) {
-                    tag += "</td></tr></table></td></tr></table>";
+            var list = tempcategoryitem[item.CategoryCode];
+            var index = -1;
+            for (var i=0; i<list.length; i++) {
+                if (list[i].SeqNo > item.SeqNo) {
+                    index = i;
+                    break;
                 }
-                tag += "<table style='width:100%;padding:10px;'><tr><td><table style='font-size:" + 100*itemratio + "%' class=foodpanel><tr><td>" + data.ItemCategories[item.CategoryCode].Name + "</td></tr><tr><td>";
-                oldgroup = item.CategoryCode;
-                firsttime = false;
             }
-            var style = "width:" + 60*itemratio + "px;height:" + 60*itemratio + "px;margin:" + 10*itemratio + "px;font-size:80%";
-            tag += "<div class=foodlabel style='" + style + "' id=" + item.ItemCode + " itemcode=" + item.ItemCode + "><table cellpadding=0 cellspacint=0 style='text-align:center' width=100% height=100%><tr><td><span>" + item.Name.replace(/\n/g, "<br>") + "</span></td></tr></table></div>";
+            var newitem = {
+                SeqNo: item.SeqNo,
+                ItemCode: item.ItemCode,
+            }
+            if (index == -1) {
+                list.push(newitem);
+            }
+            else {
+                list.splice(index,0,newitem);
+            }
         }
-        if (!firsttime) {
+        var tag = "";
+        var itemcategories = [];
+        for (var itemcategorycode in data.ItemCategories) {
+            var itemcategory = data.ItemCategories[itemcategorycode];
+            var newcategory = {
+                SeqNo: itemcategory.SeqNo,
+                CategoryCode: itemcategory.ItemCategoryCode,
+            }
+            var index = -1;
+            for (var i=0; i<itemcategories.length; i++) {
+                if (itemcategories[i].SeqNo > itemcategory.SeqNo) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                itemcategories.push(newcategory);
+            }
+            else {
+                itemcategories.splice(index,0,newcategory);
+            }
+        }
+        for (var i=0; i<itemcategories.length; i++) {
+            var itemcategory = data.ItemCategories[itemcategories[i].CategoryCode];
+            tag += "<table style='width:100%;padding:10px;'><tr><td><table style='font-size:" + 100*itemratio + "%' class=foodpanel><tr><td>" + itemcategory.Name + "</td></tr><tr><td>";
+            var itemlist = tempcategoryitem[itemcategory.ItemCategoryCode];
+            for (var j=0; j<itemlist.length; j++) {
+                var item = data.Items[itemlist[j].ItemCode];
+                var style = "width:" + 60*itemratio + "px;height:" + 60*itemratio + "px;margin:" + 10*itemratio + "px;font-size:80%";
+                tag += "<div class=foodlabel style='" + style + "' id=" + item.ItemCode + " itemcode=" + item.ItemCode + "><table cellpadding=0 cellspacint=0 style='text-align:center' width=100% height=100%><tr><td><span>" + item.Name.replace(/\n/g, "<br>") + "</span></td></tr></table></div>";
+            }
             tag += "</td></tr></table></td></tr></table>";
         }
         var pnlmenu = Ext.getCmp('pnlMenu');
