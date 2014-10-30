@@ -348,7 +348,7 @@ Ext.onReady(function () {
                 }
                 else {
                     if (currentcategory) {
-                        var itemparent = currentcategory.find('td').eq(1);
+                        var itemparent = currentcategory.find('td').eq(2);
                     }
                     else {
                         var itemparent = foodpanels.eq(0).find('td').eq(1);
@@ -667,6 +667,22 @@ Ext.onReady(function () {
                     dragdata.control.css('visibility', 'hidden');
                 }
             }
+        }
+        else {
+            Ext.defer(function() {
+                currentcategory = target.parents("table[ctype='foodcontainer']:eq(0)");
+                Ext.getCmp('panelEditItem').disable();
+                if (currentitem) {
+                    currentitem.removeClass('activeitem');
+                    currentitem = undefined;
+                    Ext.getCmp('boxItemName').setRawValue(null);
+                    Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
+                    Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
+                    Ext.getCmp('boxPrice').setValue(null);
+                    Ext.getCmp('boxChoiceGroup').setValue(null);
+                    Ext.getCmp('panelOptionGroup').update(null);
+                }
+            }, 100);
         }
     }
     function mousemove(e, originalEvent) {
