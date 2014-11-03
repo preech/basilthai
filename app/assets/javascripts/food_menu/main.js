@@ -313,17 +313,7 @@ Ext.onReady(function () {
                 }
             });
             currentcategory = box.parents("table[ctype='foodcontainer']:eq(0)");
-            Ext.getCmp('panelEditItem').disable();
-            if (currentitem) {
-                currentitem.removeClass('activeitem');
-                currentitem = undefined;
-                Ext.getCmp('boxItemName').setRawValue(null);
-                Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
-                Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
-                Ext.getCmp('boxPrice').setValue(null);
-                Ext.getCmp('boxChoiceGroup').setValue(null);
-                Ext.getCmp('panelOptionGroup').update(null);
-            }
+            disableCurrentItem();
             checkChange();
         });
         Ext.getCmp('btnNewItem').on('click', function() {
@@ -592,6 +582,20 @@ Ext.onReady(function () {
         }
         alert($.type(objA));
     }
+
+    function disableCurrentItem() {
+        if (currentitem) {
+            currentitem.removeClass('activeitem');
+        }
+        Ext.getCmp('panelEditItem').disable();
+        currentitem = undefined;
+        Ext.getCmp('boxItemName').setRawValue(null);
+        Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
+        Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
+        Ext.getCmp('boxPrice').setValue(null);
+        Ext.getCmp('boxChoiceGroup').setValue(null);
+        Ext.getCmp('panelOptionGroup').update(null);
+    }
     
     var dragdata;
     function mousedown(e) {
@@ -603,17 +607,18 @@ Ext.onReady(function () {
         if (target.attr('class') == 'categoryname') {
             Ext.defer(function() {
                 currentcategory = target.parents("table[ctype='foodcontainer']:eq(0)");
-                Ext.getCmp('panelEditItem').disable();
-                if (currentitem) {
-                    currentitem.removeClass('activeitem');
-                    currentitem = undefined;
-                    Ext.getCmp('boxItemName').setRawValue(null);
-                    Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
-                    Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
-                    Ext.getCmp('boxPrice').setValue(null);
-                    Ext.getCmp('boxChoiceGroup').setValue(null);
-                    Ext.getCmp('panelOptionGroup').update(null);
-                }
+                disableCurrentItem();
+                // Ext.getCmp('panelEditItem').disable();
+                // if (currentitem) {
+                    // currentitem.removeClass('activeitem');
+                    // currentitem = undefined;
+                    // Ext.getCmp('boxItemName').setRawValue(null);
+                    // Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
+                    // Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
+                    // Ext.getCmp('boxPrice').setValue(null);
+                    // Ext.getCmp('boxChoiceGroup').setValue(null);
+                    // Ext.getCmp('panelOptionGroup').update(null);
+                // }
             }, 100);
         }
         else if (target.attr('class') == 'deletebutton' || target.parents("div[class='deletebutton']:first").length > 0) {
@@ -626,14 +631,17 @@ Ext.onReady(function () {
                             var itemcode = foodlabels.eq(i).attr('itemcode');
                             delete data.Items[itemcode];
                         }
+                        disableCurrentItem();
                         category.remove();
-                        currentitem = undefined;
                         currentcategory = undefined;
                         checkChange();
                     }
                 });
             }
             else {
+                if (currentitem) {
+                    currentitem.removeClass('activeitem');
+                }
                 category.remove();
                 currentitem = undefined;
                 currentcategory = undefined;
@@ -711,7 +719,7 @@ Ext.onReady(function () {
                     pnlMenu.append(dummy);
                     dragdata.dummy = dummy;
                     dragdata.control.css('visibility', 'hidden');
-                    currentitem = undefined;
+                    disableCurrentItem();
                     currentcategory = acontrol;
                 }
             }

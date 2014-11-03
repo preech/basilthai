@@ -45,13 +45,6 @@ LookupChoiceGroup = {
             }
             tag += "</table>";
             tag += "</div>";
-            // var style = "width:100px;height:100px;border:1px solid blue;font-size:80%;overflow:hidden;float:left;margin:5px;background-color:#C9DDF5;cursor:pointer";
-            // tag += "<div class='choicegroup' code='" + choiceGroup.ChoiceGroupCode + "' style='" + style + "'><table cellpadding=0 cellspacing=0 style='margin:5%;width:90%;height:40%;text-align:center'><tr><td>" + choiceGroup.Name + "</td></tr></table><table cellpadding=0 cellspacing=0 style='margin:5%;width:90%;height:45%;font-size:80%'>";
-            // for (var i=0; i<choiceGroup.ChoiceList.length; i++) {
-                // var choice = choiceGroup.ChoiceList[i];
-                // tag += "<tr><td style='border-top:1px dotted blue'>" + choice.Name + "</td><td style='border-top:1px dotted blue;text-align:right'>" + choice.Price + "</td></tr>";
-            // }
-            // tag += "</table></div>";
         }
         var sheetSelect = me.form.query("panel[cid=SheetSelect]")[0];
         sheetSelect.update(tag);
