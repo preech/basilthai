@@ -608,17 +608,6 @@ Ext.onReady(function () {
             Ext.defer(function() {
                 currentcategory = target.parents("table[ctype='foodcontainer']:eq(0)");
                 disableCurrentItem();
-                // Ext.getCmp('panelEditItem').disable();
-                // if (currentitem) {
-                    // currentitem.removeClass('activeitem');
-                    // currentitem = undefined;
-                    // Ext.getCmp('boxItemName').setRawValue(null);
-                    // Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
-                    // Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
-                    // Ext.getCmp('boxPrice').setValue(null);
-                    // Ext.getCmp('boxChoiceGroup').setValue(null);
-                    // Ext.getCmp('panelOptionGroup').update(null);
-                // }
             }, 100);
         }
         else if (target.attr('class') == 'deletebutton' || target.parents("div[class='deletebutton']:first").length > 0) {
@@ -643,7 +632,7 @@ Ext.onReady(function () {
                     currentitem.removeClass('activeitem');
                 }
                 category.remove();
-                currentitem = undefined;
+                disableCurrentItem();
                 currentcategory = undefined;
                 checkChange();
             }
