@@ -270,7 +270,10 @@ Ext.onReady(function () {
         }
         for (var i=0; i<itemcategories.length; i++) {
             var itemcategory = data.ItemCategories[itemcategories[i].CategoryCode];
-            tag += "<table ctype=foodcontainer style='width:100%;padding:10px;'><tr><td><table style='font-size:" + 100*itemratio + "%' ctype=foodpanel class=foodpanel categorycode=" + itemcategory.ItemCategoryCode + "><tr><td><input class=categoryname type=text value='" + itemcategory.Name + "'/></td></tr><tr><td>";
+            tag += "<table ctype=foodcontainer style='width:100%;padding:10px;'><tr><td>";
+            tag += "<table style='font-size:" + 100*itemratio + "%' ctype=foodpanel class=foodpanel categorycode=" + itemcategory.ItemCategoryCode + "><tr><td>";
+            tag += "<input class=categoryname type=text value='" + itemcategory.Name + "'/></td><td style='width:20px'>";
+            tag += "<div class='deletebutton'><span class='text'>X</span></div></td></tr><tr><td>";
             var itemlist = tempcategoryitem[itemcategory.ItemCategoryCode];
             for (var j=0; j<itemlist.length; j++) {
                 var item = data.Items[itemlist[j].ItemCode];
@@ -297,7 +300,10 @@ Ext.onReady(function () {
                     }
                 }
             });
-            var tag = "<table ctype=foodcontainer style='width:100%;padding:10px;'><tr><td><table style='font-size:" + 100*itemratio + "%' ctype=foodpanel class=foodpanel categorycode='" + categorycode + "'><tr><td><input class=categoryname type=text value='category name'/></td></tr><tr><td></td></tr></table>";
+            var tag = "<table ctype=foodcontainer style='width:100%;padding:10px;'><tr><td>";
+            tag += "<table style='font-size:" + 100*itemratio + "%' ctype=foodpanel class=foodpanel categorycode='" + categorycode + "'><tr><td>";
+            tag += "<input class=categoryname type=text value='category name'/></td><td style='width:20px'>";
+            tag += "<div class='deletebutton'><span class='text'>X</span></div></td></tr><tr><td></td></tr></table>";
             table.append(tag);
             var box = table.find("input[class='categoryname']:last").eq(0);
             box.bind('blur', function(event) {
@@ -348,10 +354,10 @@ Ext.onReady(function () {
                 }
                 else {
                     if (currentcategory) {
-                        var itemparent = currentcategory.find('td').eq(2);
+                        var itemparent = currentcategory.find('td').eq(3);
                     }
                     else {
-                        var itemparent = foodpanels.eq(0).find('td').eq(1);
+                        var itemparent = foodpanels.eq(0).find('td').eq(2);
                     }
                     itemparent.append(tag);
                     var fooditem = itemparent.find("div[ctype='foodlabel']:last");
@@ -594,7 +600,43 @@ Ext.onReady(function () {
         }
         dragdata = undefined;
         var target = $(e.target);
-        if (target.attr('class') != 'categoryname') {
+        if (target.attr('class') == 'categoryname') {
+            Ext.defer(function() {
+                currentcategory = target.parents("table[ctype='foodcontainer']:eq(0)");
+                Ext.getCmp('panelEditItem').disable();
+                if (currentitem) {
+                    currentitem.removeClass('activeitem');
+                    currentitem = undefined;
+                    Ext.getCmp('boxItemName').setRawValue(null);
+                    Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
+                    Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
+                    Ext.getCmp('boxPrice').setValue(null);
+                    Ext.getCmp('boxChoiceGroup').setValue(null);
+                    Ext.getCmp('panelOptionGroup').update(null);
+                }
+            }, 100);
+        }
+        else if (target.attr('class') == 'deletebutton' || target.parents("div[class='deletebutton']:first").length > 0) {
+            var category = target.parents("table[ctype='foodcontainer']:eq(0)");
+            var foodlabels = category.find("[ctype='foodlabel']");
+            if (foodlabels.length > 0) {
+                Ext.Msg.confirm('', 'You will lost all items in this category, confirm to delete!', function(answer) {
+                    if (answer == 'yes') {
+                        for (var i=0; i<foodlabels.length; i++) {
+                            var itemcode = foodlabels.eq(i).attr('itemcode');
+                            delete data.Items[itemcode];
+                        }
+                        category.remove();
+                        checkChange();
+                    }
+                });
+            }
+            else {
+                category.remove();
+                checkChange();
+            }
+        }
+        else {
             var acontrol = target.parents("div[ctype='foodlabel']:eq(0)");
             if (acontrol.length > 0) {
                 if (currentitem) {
@@ -668,22 +710,6 @@ Ext.onReady(function () {
                 }
             }
         }
-        else {
-            Ext.defer(function() {
-                currentcategory = target.parents("table[ctype='foodcontainer']:eq(0)");
-                Ext.getCmp('panelEditItem').disable();
-                if (currentitem) {
-                    currentitem.removeClass('activeitem');
-                    currentitem = undefined;
-                    Ext.getCmp('boxItemName').setRawValue(null);
-                    Ext.getCmp('radioPriceType').setValue({pricetype: 'FIX'});
-                    Ext.getCmp('panelPrice').getLayout().setActiveItem(0);
-                    Ext.getCmp('boxPrice').setValue(null);
-                    Ext.getCmp('boxChoiceGroup').setValue(null);
-                    Ext.getCmp('panelOptionGroup').update(null);
-                }
-            }, 100);
-        }
     }
     function mousemove(e, originalEvent) {
         if (dragdata) {
@@ -741,7 +767,7 @@ Ext.onReady(function () {
                         }
                         else {
                             if (foodlabels.length == 0) {
-                                foodpanel.find('td').eq(1).append(tag);
+                                foodpanel.find('td').eq(2).append(tag);
                                 var newitem = foodpanel.find("[ctype='foodlabel']").eq(0);
                             }
                             else {
