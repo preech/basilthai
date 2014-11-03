@@ -627,12 +627,16 @@ Ext.onReady(function () {
                             delete data.Items[itemcode];
                         }
                         category.remove();
+                        currentitem = undefined;
+                        currentcategory = undefined;
                         checkChange();
                     }
                 });
             }
             else {
                 category.remove();
+                currentitem = undefined;
+                currentcategory = undefined;
                 checkChange();
             }
         }
@@ -707,6 +711,8 @@ Ext.onReady(function () {
                     pnlMenu.append(dummy);
                     dragdata.dummy = dummy;
                     dragdata.control.css('visibility', 'hidden');
+                    currentitem = undefined;
+                    currentcategory = acontrol;
                 }
             }
         }
