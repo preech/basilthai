@@ -372,6 +372,7 @@ Ext.onReady(function () {
             Util.requestCallback('PUT', null, null, null, data, function(returnData) {
                 Ext.Msg.alert('message', 'ready', function() {
                     Ext.getCmp('btnSave').disable();
+                    originalData = $.extend(true, {}, data);
                 });
             });
         });
