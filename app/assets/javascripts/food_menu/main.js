@@ -147,6 +147,10 @@ Ext.onReady(function () {
                 }, {
                     id: 'btnNewItem',
                     text: 'new item',
+                }, {
+                    id: 'btnDeleteItem',
+                    text: 'delete item',
+                    hidden: true,
                 }],
             }
             return config;
@@ -358,6 +362,15 @@ Ext.onReady(function () {
             }
             checkChange();
         });
+        Ext.getCmp('btnDeleteItem').on('click', function() {
+            if (currentitem) {
+                var itemcode = currentitem.attr('itemcode');
+                delete data.Items[itemcode];
+                currentitem.remove();
+                disableCurrentItem();
+                checkChange();
+            }
+        });
         Ext.getCmp('boxItemName').on('blur', function() {
             if (currentitem) {
                 var name = Ext.getCmp('boxItemName').getValue();
@@ -450,6 +463,7 @@ Ext.onReady(function () {
         }
         displayGridChoice();
         displayItemOption(item);
+        Ext.getCmp('btnDeleteItem').show();
     }
     
     function displayItemOption(item) {
@@ -596,6 +610,7 @@ Ext.onReady(function () {
         Ext.getCmp('boxPrice').setValue(null);
         Ext.getCmp('boxChoiceGroup').setValue(null);
         Ext.getCmp('panelOptionGroup').update(null);
+        Ext.getCmp('btnDeleteItem').hide();
     }
     
     var dragdata;
