@@ -6,15 +6,17 @@
   <link href="ext-theme-neptune-all.css" media="all" rel="stylesheet" />
   <script type="text/javascript" src="../app/assets/javascripts/jquery-1.8.1.min.js"></script>
   <script type="text/javascript" src="../app/assets/javascripts/ext-all.js"></script>
+  <script type="text/javascript" src="../app/assets/javascripts/lib/util.js"></script>
+  <script type="text/javascript" src="../app/assets/javascripts/lib/plugin.js"></script>
 
 </head>
 <body>
 
 <link href="../app/assets/stylesheets/pos_order.css" media="all" rel="stylesheet" />
-<script type="text/javascript" src="../app/assets/javascripts/pos_order/confirm_order.ui.js"></script>
+<script type="text/javascript" src="../app/assets/javascripts/pos_order/remark.ui.js"></script>
 <script type="text/javascript">
 	Ext.onReady(function (){
-        Ext.create('Ext.Window', ConfirmOrderUi).show();
+        Ext.create('Ext.Window', RemarkUi).show();
 //		Ext.create('Ext.Viewport', {
 //			items: [EditChoiceGroupUi],
 //		});

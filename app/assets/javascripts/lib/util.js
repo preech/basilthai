@@ -119,7 +119,8 @@ Util = {
                 return 0;
             }
             else if (Ext.isString(value)) {
-                return parseFloat(value);
+                var cleanstr = value.replace(/,/g,'');
+                return parseFloat(cleanstr);
             }
             else {
                 return value;
@@ -127,6 +128,71 @@ Util = {
         }
         else {
             return 0;
+        }
+    },
+    bindClick: function(elements, callback) {
+        var touchflag = false;
+        var startX;
+        var startY;
+        if (WINDOWSPHONE) {
+            elements.bind('MSPointerDown', function(event) {
+                var touch = event.originalEvent;
+                startX = touch.pageX;
+                startY = touch.pageY;
+                touchflag = true;
+            });
+            elements.bind('MSPointerMove', function(event) {
+                var touch = event.originalEvent;
+                if (Math.abs(touch.pageX - startX) > 10 || Math.abs(touch.pageY - startY) > 10) {
+                    touchflag = false;
+                }
+            });
+            elements.bind('MSPointerUp', function(event) {
+                if (touchflag) {
+                    callback(this);
+                }
+                touchflag = false;
+            });
+        }
+        else if (iDevice) {
+            elements.bind('touchstart', function(event) {
+                var touch = event.originalEvent.touches[0];
+                startX = touch.pageX;
+                startY = touch.pageY;
+                touchflag = true;
+            });
+            elements.bind('touchmove', function(event) {
+                var touch = event.originalEvent.touches[0];
+                if (Math.abs(touch.pageX - startX) > 10 || Math.abs(touch.pageY - startY) > 10) {
+                    touchflag = false;
+                }
+            });
+            elements.bind('touchend', function(event) {
+                if (touchflag) {
+                    callback(this);
+                }
+                touchflag = false;
+            });
+        }
+        else {
+            elements.bind('mousedown', function(event) {
+                var touch = event;
+                startX = touch.pageX;
+                startY = touch.pageY;
+                touchflag = true;
+            });
+            elements.bind('mousemove', function(event) {
+                var touch = event;
+                if (Math.abs(touch.pageX - startX) > 10 || Math.abs(touch.pageY - startY) > 10) {
+                    touchflag = false;
+                }
+            });
+            elements.bind('mouseup', function(event) {
+                if (touchflag) {
+                    callback(this);
+                }
+                touchflag = false;
+            });
         }
     },
 }

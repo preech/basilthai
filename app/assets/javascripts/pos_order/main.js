@@ -11,6 +11,7 @@ Ext.onReady(function () {
     var viewport;
     var keypadtimer;
     var data;
+    var order = {};
     
     createStore();
     resize();
@@ -209,7 +210,7 @@ Ext.onReady(function () {
                             x: 10*ratio,
                             y: 0*ratio,
                             style: 'color: gray;',
-                            text: 'Total',
+                            text: 'Net Total',
                         }, {
                             xtype: 'label',
                             id: 'totalLabel',
@@ -236,7 +237,7 @@ Ext.onReady(function () {
                             xtype: 'label',
                             x: 10*ratio,
                             y: 30*ratio,
-                            text: 'Net',
+                            text: 'Total',
                         }, {
                             xtype: 'label',
                             id: 'netLabel',
@@ -279,44 +280,44 @@ Ext.onReady(function () {
                         data: { value: 7 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>7</span></td></tr></table>',
                     }, {
-                        data: { text: '8', value: 8 },
+                        data: { value: 8 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>8</span></td></tr></table>',
                     }, {
-                        data: { text: '9', value: 9 },
+                        data: { value: 9 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>9</span></td></tr></table>',
                     }, {
-                        data: { text: '<-' },
+                        data: { text: '' },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span></span></td></tr></table>',
                     }, {
-                        data: { text: '4', value: 4 },
+                        data: { value: 4 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>4</span></td></tr></table>',
                     }, {
-                        data: { text: '5', value: 5 },
+                        data: { value: 5 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>5</span></td></tr></table>',
                     }, {
-                        data: { text: '6', value: 6 },
+                        data: { value: 6 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>6</span></td></tr></table>',
                     }, {
                         data: { text: '' },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span></span></td></tr></table>',
                     }, {
-                        data: { text: '1', value: 1 },
+                        data: { value: 1 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>1</span></td></tr></table>',
                     }, {
-                        data: { text: '2', value: 2 },
+                        data: { value: 2 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>2</span></td></tr></table>',
                     }, {
-                        data: { text: '3', value: 3 },
+                        data: { value: 3 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>3</span></td></tr></table>',
                     }, {
-                        data: { text: '' },
-                        html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span></span></td></tr></table>',
+                        bodyStyle: 'font-size:' + 100*padyratio + '%',
+                        data: { command: 'remark' },
+                        html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>Remark</span></td></tr></table>',
                     }, {
-                        data: { text: '0', value: 0 },
+                        colspan: 2,
+                        width: 120*ratio,
+                        data: { value: 0 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>0</span></td></tr></table>',
-                    }, {
-                        data: { text: '' },
-                        html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span></span></td></tr></table>',
                     }, {
                         data: { text: '' },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span></span></td></tr></table>',
@@ -405,50 +406,67 @@ Ext.onReady(function () {
             target = target.parent();
         }
         var comp = Ext.getCmp(target.attr('id'));
-        var sm = Ext.getCmp('orderGrid').getSelectionModel();
-        if (sm.hasSelection())
-        {
-            var record = sm.getLastSelected();
-            if (comp.data.value >= 0) {
-                var quantity = 0;
-                if (keypadtimer) {
-                    quantity = record.get('quantity');
+        if (comp.data.command == 'remark') {
+            Remark.show(data, order, function() {
+            });
+        }
+        else {
+            var sm = Ext.getCmp('orderGrid').getSelectionModel();
+            if (sm.hasSelection())
+            {
+                var record = sm.getLastSelected();
+                if (comp.data.value >= 0) {
+                    var quantity = 0;
+                    if (keypadtimer) {
+                        quantity = record.get('quantity');
+                    }
+                    record.set('quantity', quantity*10+comp.data.value);
+                    record.set('displayqty', null);
+                    Ext.getStore('orderlistStore').commitChanges();
                 }
-                record.set('quantity', quantity*10+comp.data.value);
-                record.set('displayqty', null);
-                Ext.getStore('orderlistStore').commitChanges();
-            }
-            else if (comp.data.command) {
-                switch (comp.data.command) {
-                    case 'delete_item':
-                        var store = Ext.getStore('orderlistStore');
-                        var index = store.indexOf(record);
-                        store.remove(record);
-                        var count = store.getCount();
-                        if (count > index) {
-                            Ext.getCmp('orderGrid').getView().select(index);
-                        }
-                        else if (count > 0) {
-                             Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
-                        }
-                        break;
-                    case 'close_order':
-                        var store = Ext.getStore('orderlistStore');
-                        store.removeAll();
-                        var optionpanel = Ext.getCmp('pnlOption');
-                        optionpanel.removeAll();                        
-                        // ConfirmOrder.show(data, function(code) {
+                else if (comp.data.command) {
+                    switch (comp.data.command) {
+                        case 'delete_item':
+                            var store = Ext.getStore('orderlistStore');
+                            var index = store.indexOf(record);
+                            store.remove(record);
+                            var count = store.getCount();
+                            if (count > index) {
+                                Ext.getCmp('orderGrid').getView().select(index);
+                            }
+                            else if (count > 0) {
+                                 Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
+                            }
+                            break;
+                        case 'close_order':
                             // var store = Ext.getStore('orderlistStore');
                             // store.removeAll();
                             // var optionpanel = Ext.getCmp('pnlOption');
-                            // optionpanel.removeAll();
-                        // });
-                        break;
+                            // optionpanel.removeAll(); 
+                            var store = Ext.getStore('orderlistStore');
+                            var list = store.getRange();
+                            var net = 0;
+                            Ext.each(list, function(record) {
+                                net = decimalround(net + (record.get('quantity')||0) * (record.get('price')||0));
+                            });
+                            var tax = Math.round(net * 10) / 100;
+                            var total = net + tax;
+                            order.amount = net;
+                            order.tax = tax;
+                            order.total = total;
+                            ConfirmOrder.show(data, order, function(code) {
+                                var store = Ext.getStore('orderlistStore');
+                                store.removeAll();
+                                var optionpanel = Ext.getCmp('pnlOption');
+                                optionpanel.removeAll();
+                            });
+                            break;
+                    }
                 }
+                updatetotal();
             }
-            updatetotal();
+            setkeypadtimeout();
         }
-        setkeypadtimeout();
     }
     function bindEvent() {
         Ext.each(Ext.getCmp('keypad').query('panel'), function(panel) {
