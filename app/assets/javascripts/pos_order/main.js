@@ -670,7 +670,7 @@ Ext.onReady(function () {
             var form = Ext.create('Ext.window.Window', {
                 title: 'select a choice',
                 height: 120*choiceratio*2 + 80,
-                width: 5 * 120 * choiceratio + 15 + 14,
+                width: 5 * 120 * choiceratio + 15 + 20,
 //                width: priceset.length * 120 * choiceratio + 15,
                 layout: 'fit',
                 closable: false,
