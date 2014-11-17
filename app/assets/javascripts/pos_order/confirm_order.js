@@ -36,6 +36,9 @@ ConfirmOrder = {
         });
         me.getCmp('btnCloseFinish').on('click', function() {
             me.form.close();
+            if (me.callback) {
+                me.callback();
+            }
         });
     },
     afterShow: function(data, order) {

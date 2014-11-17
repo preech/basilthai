@@ -439,10 +439,6 @@ Ext.onReady(function () {
                             }
                             break;
                         case 'close_order':
-                            // var store = Ext.getStore('orderlistStore');
-                            // store.removeAll();
-                            // var optionpanel = Ext.getCmp('pnlOption');
-                            // optionpanel.removeAll(); 
                             var store = Ext.getStore('orderlistStore');
                             var list = store.getRange();
                             var net = 0;
@@ -459,6 +455,7 @@ Ext.onReady(function () {
                                 store.removeAll();
                                 var optionpanel = Ext.getCmp('pnlOption');
                                 optionpanel.removeAll();
+                                updatetotal();
                             });
                             break;
                     }
@@ -672,13 +669,15 @@ Ext.onReady(function () {
             var priceset = data.ChoiceGroups[itemdata.ChoiceGroupCode].ChoiceList;
             var form = Ext.create('Ext.window.Window', {
                 title: 'select a choice',
-                height: 120*choiceratio + 80,
-                width: priceset.length * 120 * choiceratio + 15,
+                height: 120*choiceratio*2 + 80,
+                width: 5 * 120 * choiceratio + 15 + 14,
+//                width: priceset.length * 120 * choiceratio + 15,
                 layout: 'fit',
                 closable: false,
                 modal: true,
                 items: {
                     id: 'choicepanel',
+                    autoScroll: true,
                 },
                 buttons: [{
                     text: 'Cancel',
