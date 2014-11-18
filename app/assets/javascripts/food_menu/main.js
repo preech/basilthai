@@ -628,29 +628,31 @@ Ext.onReady(function () {
         }
         else if (target.attr('class') == 'deletebutton' || target.parents("div[class='deletebutton']:first").length > 0) {
             var category = target.parents("table[ctype='foodcontainer']:eq(0)");
-            var foodlabels = category.find("[ctype='foodlabel']");
-            if (foodlabels.length > 0) {
-                Ext.Msg.confirm('', 'You will lost all items in this category, confirm to delete!', function(answer) {
-                    if (answer == 'yes') {
-                        for (var i=0; i<foodlabels.length; i++) {
-                            var itemcode = foodlabels.eq(i).attr('itemcode');
-                            delete data.Items[itemcode];
+            if (category.length > 0) {
+                var foodlabels = category.find("[ctype='foodlabel']");
+                if (foodlabels.length > 0) {
+                    Ext.Msg.confirm('', 'You will lost all items in this category, confirm to delete!', function(answer) {
+                        if (answer == 'yes') {
+                            for (var i=0; i<foodlabels.length; i++) {
+                                var itemcode = foodlabels.eq(i).attr('itemcode');
+                                delete data.Items[itemcode];
+                            }
+                            disableCurrentItem();
+                            category.remove();
+                            currentcategory = undefined;
+                            checkChange();
                         }
-                        disableCurrentItem();
-                        category.remove();
-                        currentcategory = undefined;
-                        checkChange();
-                    }
-                });
-            }
-            else {
-                if (currentitem) {
-                    currentitem.removeClass('activeitem');
+                    });
                 }
-                category.remove();
-                disableCurrentItem();
-                currentcategory = undefined;
-                checkChange();
+                else {
+                    if (currentitem) {
+                        currentitem.removeClass('activeitem');
+                    }
+                    category.remove();
+                    disableCurrentItem();
+                    currentcategory = undefined;
+                    checkChange();
+                }
             }
         }
         else {
