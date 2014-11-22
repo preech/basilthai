@@ -17,6 +17,11 @@
             <File name="app\models\option_group.rb" />
             <File name="app\models\option.rb" />
         </Folder>
+        <Folder name="order">
+            <File name="app\models\order.rb" />
+            <File name="app\models\order_item.rb" />
+            <File name="app\models\order_option.rb" />
+        </Folder>
     </Project>
     <Project name="lib">
         <File name="app\assets\javascripts\lib\plugin.js" />

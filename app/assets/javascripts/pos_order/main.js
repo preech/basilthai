@@ -1,6 +1,7 @@
 ﻿//= require_tree .
 
 Ext.onReady(function () {
+    var MAXQUEUENO = 50;
     Util.initial(this);
     var screenSize;
     var ratio;
@@ -14,6 +15,7 @@ Ext.onReady(function () {
     var order = {};
     
     createStore();
+    clearOrder();
     resize();
     if (PHONE) {
         $(window).resize(function (event) {
@@ -139,6 +141,24 @@ Ext.onReady(function () {
                     type: 'json',
                     root: 'items'
                 }
+            }
+        });
+    }
+    function clearOrder() {
+        order = {
+            OrderType: 'FORHERE',
+            Status: 'INITIAL',
+            PaymentType: 'CASH',
+            TaxExemptFlag: 'F',
+        }
+        var params = {
+            OrderDate: Util.dateToStr(new Date()),
+        }
+        Util.requestCallback('GET', 'get_last_queue_no', null, params, null, function(returnData) {
+            var lastqueueno = returnData.LastQueueNo;
+            order.QueueNo = Util.toFloat(lastqueueno) + 1;
+            if (order.QueueNo > MAXQUEUENO) {
+                order.QueueNo = 1;
             }
         });
     }
@@ -447,15 +467,26 @@ Ext.onReady(function () {
                             });
                             var tax = Math.round(net * 10) / 100;
                             var total = net + tax;
-                            order.amount = net;
-                            order.tax = tax;
-                            order.total = total;
-                            ConfirmOrder.show(data, order, function(code) {
-                                var store = Ext.getStore('orderlistStore');
-                                store.removeAll();
-                                var optionpanel = Ext.getCmp('pnlOption');
-                                optionpanel.removeAll();
-                                updatetotal();
+                            order.Amount = net;
+                            ConfirmOrder.show(data, order, function(closeflag) {
+                                if (closeflag) {
+                                    saveOrder();
+                                    order.Status = 'START';
+                                    var now = new Date();
+                                    order.OrderDate = Util.dateToStr(now);
+                                    order.OrderTime = Ext.util.Format.date(now, 'H:i');
+                                    Util.requestCallback('PUT', null, null, null, order, function(returnData) {
+                                        var store = Ext.getStore('orderlistStore');
+                                        store.removeAll();
+                                        var optionpanel = Ext.getCmp('pnlOption');
+                                        optionpanel.removeAll();
+                                        clearOrder();
+                                        updatetotal();
+                                    });
+                                }
+                                else {
+                                    updatetotal();
+                                }
                             });
                             break;
                     }
@@ -464,6 +495,60 @@ Ext.onReady(function () {
             }
             setkeypadtimeout();
         }
+    }
+    function saveOrder() {
+        var store = Ext.getStore('orderlistStore');
+        var list = store.getRange();
+        var items = [];
+        Ext.each(list, function(record, index) {
+            var itemcode = record.get('foodid');
+            var item = data.Items[itemcode];
+            var orderitem = {
+                ItemCode: itemcode,
+                ItemName: record.get('name'),
+                CategoryCode: item.CategoryCode,
+                CategoryName: data.ItemCategories[item.CategoryCode].Name,
+                Quantity: record.get('quantity'),
+                Price: record.get('price'),
+                PriceType: item.PriceType,
+                Status: 'ORDER',
+                SeqNo: index+1,
+            }
+            if (item.PriceType == 'CHOICE') {
+                $.extend(orderitem, {
+                    ChoiceGroupCode: item.ChoiceGroupCode,
+                    ChoiceGroupName: data.ChoiceGroups[item.ChoiceGroupCode].Name,
+                });
+            }
+            recordoptions = record.get('option');
+            var options = [];
+            Ext.each(item.OptionList, function(optiongroup, optionindex) {
+                var optioncode = recordoptions[optionindex];
+                var defaultflag = 'F';
+                if (!optioncode) {
+                    optioncode = optiongroup.DefaultOptionCode;
+                    defaultflag = 'T';
+                }
+                var orderoption = {
+                    OptionGroupCode: optiongroup.OptionGroupCode,
+                    OptionGroupName: data.OptionGroups[optiongroup.OptionGroupCode].Name,
+                    OptionCode: optioncode,
+                    DefaultFlag: defaultflag,
+                    SeqNo: optionindex+1,
+                }
+                Ext.each(data.OptionGroups[optiongroup.OptionGroupCode].OptionList, function(option) {
+                    if (optioncode == option.OptionCode) {
+                        orderoption.OptionName = option.Name;
+                        orderoption.Price = option.Price;
+                        return false;
+                    }
+                });
+                options.push(orderoption);
+            });
+            orderitem.OrderOptions = options;
+            items.push(orderitem);
+        });
+        order.OrderItems = items;
     }
     function bindEvent() {
         Ext.each(Ext.getCmp('keypad').query('panel'), function(panel) {
@@ -497,7 +582,12 @@ Ext.onReady(function () {
         Ext.each(list, function(record) {
             total = decimalround(total + (record.get('quantity')||0) * (record.get('price')||0));
         });
-        var tax = Math.round(total * 10) / 100;
+        if (order.TaxExemptFlag == 'T') {
+            var tax = 0;
+        }
+        else {
+            var tax = Math.round(total * 9.5) / 100;
+        }
         var net = total + tax;
         Ext.getCmp('totalLabel').setText('$'+total.formatMoney(2));
         Ext.getCmp('taxLabel').setText('$'+tax.formatMoney(2));
@@ -671,7 +761,6 @@ Ext.onReady(function () {
                 title: 'select a choice',
                 height: 120*choiceratio*2 + 80,
                 width: 5 * 120 * choiceratio + 15 + 20,
-//                width: priceset.length * 120 * choiceratio + 15,
                 layout: 'fit',
                 closable: false,
                 modal: true,

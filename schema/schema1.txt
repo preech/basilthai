@@ -1,0 +1,77 @@
+-- Table: orders
+
+-- DROP TABLE orders;
+
+CREATE TABLE orders
+(
+  id bigserial NOT NULL,
+  order_no character varying(255),
+  queue_no integer,
+  table_no character varying(255),
+  order_date date,
+  order_time time without time zone,
+  amount money,
+  tax money,
+  total_amount money,
+  tax_exempt_flag character(1),
+  status character varying(255),
+  order_type character varying(255),
+  payment_type character varying(255),
+  cash_tendered money,
+  change money,
+  credit_card_no character varying(255),
+  remark text,
+  CONSTRAINT orders_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE orders OWNER TO basilthai;
+
+-- Table: order_items
+
+-- DROP TABLE order_items;
+
+CREATE TABLE order_items
+(
+  id bigserial NOT NULL,
+  order_id bigint,
+  item_code character varying(255),
+  item_name character varying(255),
+  category_code character varying(255),
+  category_name character varying(255),
+  quantity integer,
+  price money,
+  price_type character varying(255),
+  choice_group_code character varying(255),
+  choice_group_name character varying(255),
+  status character varying(255),
+  seq_no integer,
+  CONSTRAINT order_items_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE order_items OWNER TO basilthai;
+
+-- Table: order_options
+
+-- DROP TABLE order_options;
+
+CREATE TABLE order_options
+(
+  id bigserial NOT NULL,
+  order_item_id bigint,
+  option_group_code character varying(255),
+  option_group_name character varying(255),
+  option_code character varying,
+  option_name character varying,
+  default_flag character(1),
+  price money,
+  seq_no integer,
+  CONSTRAINT order_options_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE order_options OWNER TO basilthai;

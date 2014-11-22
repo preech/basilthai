@@ -5,7 +5,27 @@ ConfirmOrder = {
         me.callback = callbackfn;
         me.form = Ext.create('Ext.Window', ConfirmOrderUi);
         me.bindEvent(data, order);
-        me.getCmp('boxamount').setValue(Util.toFloat(order.amount).formatMoney(2));
+        me.getCmp('boxamount').setValue(Util.toFloat(order.Amount).formatMoney(2));
+        Ext.each(me.getCmp('ordertype').query('radiofield'), function(radio) {
+            if (radio.inputValue == order.OrderType) {
+                radio.setValue(true);
+            }
+        });
+        me.getCmp('boxexempt').setValue(order.TaxExemptFlag == 'T');
+        Ext.each(me.getCmp('boxpayby').query('radiofield'), function(radio) {
+            if (radio.inputValue == order.PaymentType) {
+                radio.setValue(true);
+            }
+        });
+        var cashtendered = Util.toFloat(order.CashTendered);
+        if (cashtendered) {
+            me.getCmp('boxreceive').setValue(cashtendered.formatMoney(2));
+        }
+        else {
+            me.getCmp('boxreceive').setValue(null);
+        }
+        me.getCmp('boxcreditcardno').setValue(order.CreditCardNo);
+        me.getCmp('boxqueue').setValue(order.QueueNo);
         me.calculate();
         me.form.show();
         me.afterShow(data, order);
@@ -19,10 +39,13 @@ ConfirmOrder = {
                         case 'CASH':
                             me.clearkeypadtimeout();
                             me.getCmp('panelpayby').getLayout().setActiveItem(0);
+                            me.getCmp('boxcreditcardno').setValue(null);
                             break;
                         case 'CARD':
                             me.clearkeypadtimeout();
                             me.getCmp('panelpayby').getLayout().setActiveItem(1);
+                            me.getCmp('boxreceive').setValue(null);
+                            me.getCmp('boxchange').setValue(null);
                             break;
                     }
                 }
@@ -31,13 +54,18 @@ ConfirmOrder = {
         me.getCmp('boxexempt').on('change', function() {
             me.calculate();
         });
-        me.getCmp('btnCloseCancel').on('click', function() {
-            me.form.close();
-        });
-        me.getCmp('btnCloseFinish').on('click', function() {
+        me.getCmp('btnCloseBack').on('click', function() {
+            me.saveOrder(order);
             me.form.close();
             if (me.callback) {
-                me.callback();
+                me.callback(false);
+            }
+        });
+        me.getCmp('btnCloseFinish').on('click', function() {
+            me.saveOrder(order);
+            me.form.close();
+            if (me.callback) {
+                me.callback(true);
             }
         });
     },
@@ -114,6 +142,26 @@ ConfirmOrder = {
             return query[0];
         }
     },
+    saveOrder: function(order) {
+        var me = this;
+        order.QueueNo = me.getCmp('boxqueue').getValue();
+        Ext.each(me.getCmp('ordertype').query('radiofield'), function(radio) {
+            if (radio.getValue()) {
+                order.OrderType = radio.inputValue;
+            }
+        });
+        order.TaxExemptFlag = me.getCmp('boxexempt').getValue()?'T':'F';
+        order.Tax = Util.toFloat(me.getCmp('boxtax').getValue());
+        order.TotalAmount = Util.toFloat(me.getCmp('boxtotal').getValue());
+        Ext.each(me.getCmp('boxpayby').query('radiofield'), function(radio) {
+            if (radio.getValue()) {
+                order.PaymentType = radio.inputValue;
+            }
+        });
+        order.CashTendered = Util.toFloat(me.getCmp('boxreceive').getValue());
+        order.Change = Util.toFloat(me.getCmp('boxchange').getValue());
+        order.CreditCardNo = me.getCmp('boxcreditcardno').getValue();
+    },
     calculate: function() {
         var me = this;
         var netamount = Util.toFloat(me.getCmp('boxamount').getValue());
@@ -121,18 +169,19 @@ ConfirmOrder = {
             var tax = 0;
         }
         else {
-            var tax = netamount*0.1;
+            var tax = netamount*0.095;
         }
         var totalamount = netamount + tax;
         me.getCmp('boxtax').setValue(tax.formatMoney(2));
         me.getCmp('boxtotal').setValue(totalamount.formatMoney(2));
-        if (me.getCmp('boxreceive').getValue()) {
-            var receive = Util.toFloat(me.getCmp('boxreceive').getValue());
+        var receive = Util.toFloat(me.getCmp('boxreceive').getValue());
+        if (receive) {
             me.getCmp('boxreceive').setValue(receive.formatMoney(2));
             var change = receive - totalamount;
             me.getCmp('boxchange').setValue(change.formatMoney(2));
         }
         else {
+            me.getCmp('boxreceive').setValue(null);
             me.getCmp('boxchange').setValue(null);
         }
     },

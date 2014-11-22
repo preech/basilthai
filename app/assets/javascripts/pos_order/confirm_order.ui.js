@@ -13,12 +13,12 @@ var ConfirmOrderUi = {
         bodyStyle: 'background-color: #86C2F7',
         items: [{
             xtype: 'button',
-            id: 'btnCloseCancel',
+            id: 'btnCloseBack',
             x: 150,
             y: 10,
             width: 100,
             height: 30,
-            text: 'Cancel',
+            text: 'Back',
         }, {
             xtype: 'button',
             id: 'btnCloseFinish',
@@ -53,12 +53,12 @@ var ConfirmOrderUi = {
                     items: [{
                         boxLabel: 'For Here',
                         name: 'ordertype',
-                        inputValue: 'HERE',
+                        inputValue: 'FORHERE',
                         checked: true,
                     }, {
                         boxLabel: 'To Go',
                         name: 'ordertype',
-                        inputValue: 'HOME',
+                        inputValue: 'TOGO',
                     }]
                 }, {
                     xtype: 'panel',
@@ -166,9 +166,9 @@ var ConfirmOrderUi = {
                     fieldStyle: 'font-size: 25px; background-color:#BBBBFB;',
                     height: 30,
                     width: 200,
-                    value: '25',
                     decimalPrecision: 0,
-                    minValue: 0,
+                    maxValue: 50,
+                    minValue: 1,
                 }]
             }]
         }, {

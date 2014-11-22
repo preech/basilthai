@@ -38,12 +38,19 @@ Util = {
         return typeof value === 'string'
     },
     requestCallback: function(method, url, id, params, data, callback) {
-        if (!url) {
-            url = $(location).attr('href');
-            url = '/' + url.split('/page/')[1].split('?')[0];
+        mainurl = $(location).attr('href');
+        mainurl = '/' + mainurl.split('/page/')[1].split('?')[0];
+        if (url) {
+            if (url[0] != '/') {
+                mainurl += '/';
+            }
+            mainurl += url;
+        }
+        if (id != undefined) {
+            mainurl += '/' + id;
         }
         var config = {
-            url: url,
+            url: Ext.urlAppend(mainurl, Ext.urlEncode(params)),
             type: method,
             async: true,
             success: function(response) {
@@ -78,7 +85,7 @@ Util = {
                 Ext.Msg.alert(textStatus, errorThrown);
             }
         }
-        if (method == 'PUT') {
+        if (method == 'PUT' || method == 'POST') {
             config.beforeSend = function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))};
         }
         if (data) {
@@ -194,5 +201,8 @@ Util = {
                 touchflag = false;
             });
         }
+    },
+    dateToStr: function(date) {
+        return Ext.util.Format.date(date, "Y-m-d");
     },
 }
