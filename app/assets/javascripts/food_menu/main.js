@@ -516,8 +516,8 @@ Ext.onReady(function () {
                     }
                     LookupOptionGroup.show(data, ignoreList, function(option) {
                         item.OptionList.push(option);
-                        displayItemOption(item);
                     }, function() {
+                        displayItemOption(item);
                         checkChange();
                     });
                 }
