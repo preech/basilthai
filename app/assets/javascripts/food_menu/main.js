@@ -129,7 +129,6 @@ Ext.onReady(function () {
                             title: 'Options',
                         }]
                     }, {
-                        region: 'center',
                         id: 'pnlMenu',
                         region: 'center',
                         overflowX: 'hidden',

@@ -37,7 +37,7 @@ Util = {
     isString: function(value) {
         return typeof value === 'string'
     },
-    requestCallback: function(method, url, id, params, data, callback) {
+    requestCallback: function(method, url, id, params, data, callback, sync) {
         mainurl = $(location).attr('href');
         mainurl = '/' + mainurl.split('/page/')[1].split('?')[0];
         if (url) {
@@ -52,7 +52,7 @@ Util = {
         var config = {
             url: Ext.urlAppend(mainurl, Ext.urlEncode(params)),
             type: method,
-            async: true,
+            async: (sync == true)?false:true,
             success: function(response) {
                 if (Ext.isString(response))
                 {
@@ -204,5 +204,8 @@ Util = {
     },
     dateToStr: function(date) {
         return Ext.util.Format.date(date, "Y-m-d");
+    },
+    each: function(list, eachfn) {
+        return Ext.each(list, eachfn);
     },
 }

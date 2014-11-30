@@ -2,6 +2,7 @@
     <Project name="config">
         <File name="config\routes.rb" />
         <File name="config\database.yml" />
+        <File name="config\initializers\assets.rb" />
     </Project>
     <Project name="data">
         <File name="app\models\item_category.rb" />
@@ -40,16 +41,21 @@
         <File name="app\assets\javascripts\food_menu\edit_option_group.ui.js" />
         <File name="app\assets\javascripts\food_menu\lookup_option_group.js" />
         <File name="app\assets\javascripts\food_menu\lookup_option_group.ui.js" />
-        <File name="app\controllers\food_menu_controller.rb" />
         <File name="app\assets\stylesheets\food_menu.css" />
+        <File name="app\controllers\food_menu_controller.rb" />
     </Project>
     <Project name="pos_order">
         <File name="app\assets\javascripts\pos_order\main.js" />
         <File name="app\assets\javascripts\pos_order\confirm_order.js" />
         <File name="app\assets\javascripts\pos_order\confirm_order.ui.js" />
-        <File name="app\controllers\pos_order_controller.rb" />
-        <File name="app\assets\stylesheets\pos_order.css" />
         <File name="app\assets\javascripts\pos_order\remark.js" />
         <File name="app\assets\javascripts\pos_order\remark.ui.js" />
+        <File name="app\assets\stylesheets\pos_order.css" />
+        <File name="app\controllers\pos_order_controller.rb" />
+    </Project>
+    <Project name="cook_ticket">
+        <File name="app\assets\javascripts\cook_ticket\main.js" />
+        <File name="app\assets\stylesheets\cook_ticket.css" />
+        <File name="app\controllers\cook_ticket_controller.rb" />
     </Project>
 </NotepadPlus>

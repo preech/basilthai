@@ -9,8 +9,8 @@ class PosOrderController < TemplateController
       data = params[:data] || "{}"
       hash = JSON.parse(data)
       order = Order.new
-      logger.info(hash)
       order.hash_data = hash
+      order.update_date = DateTime.now
       order.save!
       #abort!
       render :json => { :success => true }

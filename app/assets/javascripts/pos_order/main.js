@@ -183,6 +183,9 @@ Ext.onReady(function () {
                     items: [{
                         text: 'Food Menu',
                         href: '../page/food_menu',
+                    }, {
+                        text: 'Cook Ticket',
+                        href: '../page/cook_ticket',
                     }],
                 }]
             }, {
@@ -474,7 +477,7 @@ Ext.onReady(function () {
                                     order.Status = 'START';
                                     var now = new Date();
                                     order.OrderDate = Util.dateToStr(now);
-                                    order.OrderTime = Ext.util.Format.date(now, 'H:i');
+                                    order.OrderTime = Ext.util.Format.date(now, 'H:i:s.u');
                                     Util.requestCallback('PUT', null, null, null, order, function(returnData) {
                                         var store = Ext.getStore('orderlistStore');
                                         store.removeAll();
@@ -511,7 +514,9 @@ Ext.onReady(function () {
                 Quantity: record.get('quantity'),
                 Price: record.get('price'),
                 PriceType: item.PriceType,
-                Status: 'ORDER',
+                ChoiceCode: record.get('choice'),
+                ChoiceName: record.get('choicename'),
+                Status: 'UNCOOK',
                 SeqNo: index+1,
             }
             if (item.PriceType == 'CHOICE') {

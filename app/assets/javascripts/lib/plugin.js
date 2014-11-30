@@ -58,7 +58,16 @@ Ext.define('Ta.control.Application', {
                         floating: false,
                         items: [{
                             text: 'POS Order',
+                            program: 'pos_order',
                             href: '../page/pos_order',
+                        }, {
+                            text: 'Food Menu',
+                            program: 'food_menu',
+                            href: '../page/food_menu',
+                        }, {
+                           text: 'Cook Ticket',
+                            program: 'cook_ticket',
+                            href: '../page/cook_ticket',
                         }],
                     }]
                 }, {
@@ -79,6 +88,17 @@ Ext.define('Ta.control.Application', {
                 }],
             }],
         };
+        programname = $(location).attr('href').split('/page/')[1].split('?')[0];
+        var menus = newconfig.items[0].items[1].items[0].items;
+        var currentindex = -1;
+        Ext.each(menus, function(menu, index) {
+            if (menu.program == programname) {
+                currentindex = index;
+            }
+        });
+        if (currentindex >= 0) {
+            menus.splice(currentindex, 1);
+        }
         Ext.applyIf(newconfig, config);
         this.callParent([newconfig]);
     },

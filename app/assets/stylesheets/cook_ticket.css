@@ -1,0 +1,68 @@
+div {
+	-webkit-touch-callout:none;
+	-webkit-user-select:none;
+	-khtml-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+	-webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+.mainpanel {
+    background-color: #C9DDFB;
+}
+.button {
+    border: 1px solid black;
+    border-radius: 2px;
+    float: left;
+    margin-left: 10px;
+    cursor: pointer;
+    height: 30px;
+    width: 60px;
+    text-align: center;
+}
+.button:hover {
+    background-color: #5DC3F5;
+}
+.current {
+    background-color: #0058A5;
+    color: white;
+}
+.current:hover {
+    background-color: #001526;
+}
+.itemname {
+}
+.option {
+    font-size: 50%;
+}
+.queueno {
+    font-size: 200%;
+}
+.ordertype {
+    font-size: 100%;
+}
+.ordertime {
+    font-size: 30%;
+}
+.alternate {
+    background-color: #F1F8FE;
+}
+.quantity {
+    font-size: 120%;
+}
+.finishitem {
+    font-size: 80%;
+    color: gray;
+    font-style: italic;
+    cursor: pointer;
+}
+.finishorder {
+    font-size: 80%;
+    color: gray;
+    font-style: italic;
+    cursor: pointer;
+    padding-left: 5px;
+}
+.duplicate {
+    color: #E47A00;
+}
