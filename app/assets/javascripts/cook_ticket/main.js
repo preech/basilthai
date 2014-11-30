@@ -7,16 +7,7 @@ Ext.onReady(function () {
     var allOrders = {};
     var dirty = false;
     
-	// $(window).on('beforeunload', function() {
-        // if (Ext.getCmp('btnSave').disabled) {
-            // return ;
-        // }
-        // else {
-            // return 'Data is changed. Are you sure you want to leave?';
-        // }
-    // });
     Util.initial(this);
-    // createStore();
     var main = Ext.create('Ta.control.Application', {
         loadConfig: function() {
             screensize = Util.getScreenSize();
@@ -32,21 +23,6 @@ Ext.onReady(function () {
                         bodyCls: 'mainpanel',
                     }],
                 }],
-                // buttons: [{
-                    // id: 'btnSave',
-                    // text: 'save',
-                    // disabled: true,
-                // }, {
-                    // id: 'btnNewCategory',
-                    // text: 'new category',
-                // }, {
-                    // id: 'btnNewItem',
-                    // text: 'new item',
-                // }, {
-                    // id: 'btnDeleteItem',
-                    // text: 'delete item',
-                    // hidden: true,
-                // }],
             }
             return config;
         },
@@ -54,6 +30,7 @@ Ext.onReady(function () {
             if (timer) {
                 clearInterval(timer);
             }
+            lastrefreshtime = undefined;
             refresh_order();
             timer = setInterval(refresh_order, 10000);
         },
@@ -70,13 +47,49 @@ Ext.onReady(function () {
                 refresh_order(true);
             }
             else {
-                lastrefreshtime = returnData.RefreshTime;
-                Util.each(returnData.Orders, function(order) {
-                    render_order(order);
-                });
+                if (lastrefreshtime == undefined) {
+                    nextstep(returnData);
+                }
+                else {
+                    var newflag = false;
+                    Util.each(returnData.Orders, function(order) {
+                        if (allOrders[order.Id] == undefined) {
+                            newflag = true;
+                            return false;
+                        }
+                    });
+                    if (newflag) {
+                        var form = Ext.create('Ext.Window', {
+                            title: '',
+                            constrain: true,
+                            border: false,
+                            modal: true,
+                            width: 100,
+                            height: 50,
+                            closable: false,
+                            header: false,
+                            layout: 'fit',
+                            items: [{
+                                html: "<table width=100% height=100%><tr><td style='text-align:center;background-color:#005198;color:white'>New Order</td></tr></table>",
+                            }],
+                        });
+                        form.show(null, function() {
+                            Ext.defer(function() {
+                                form.close();
+                                nextstep(returnData);
+                            }, 3000);
+                        });
+                    }
+                }
             }
-            refresh_duplicate();
         }, syncflag);
+        function nextstep(returnData) {
+            lastrefreshtime = returnData.RefreshTime;
+            Util.each(returnData.Orders, function(order) {
+                render_order(order);
+            });
+            refresh_duplicate();
+        }
     }
     
     function render_order(order) {
@@ -142,7 +155,14 @@ Ext.onReady(function () {
         var pnlmain = $("[id='pnlOrderMain-innerCt']").eq(0);
         var orderdom = pnlmain.find("div[orderid='" + order.Id + "']");
         if (orderdom.length == 0) {
-            pnlmain.append("<div orderid=" + order.Id + " style='margin:5px;background-color:white'>" + tag + "</div>");
+            var firstorder = pnlmain.find("div[orderid]:first");
+            var ordertag = "<div orderid=" + order.Id + " style='margin:5px;background-color:white'>" + tag + "</div>";
+            if (firstorder.length == 0) {
+                pnlmain.append(ordertag);
+            }
+            else {
+                firstorder.before(ordertag);
+            }
             orderdom = pnlmain.find("div[orderid='" + order.Id + "']");
         }
         else {
