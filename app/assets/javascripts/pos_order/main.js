@@ -14,6 +14,16 @@ Ext.onReady(function () {
     var data;
     var order = {};
     
+	$(window).on('beforeunload', function() {
+        var store = Ext.getStore('orderlistStore');
+        var list = store.getRange();
+        if (list.length == 0) {
+            return ;
+        }
+        else {
+            return 'This order has not finished. Are you sure you want to leave?';
+        }
+    });
     createStore();
     clearOrder();
     resize();
