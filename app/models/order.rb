@@ -50,7 +50,7 @@ class Order < ActiveRecord::Base
     a = arel_table.dup; a.table_alias = 'a'
     arel = a.project(a[:queue_no]).
       where(a[:order_date].eq(orderdate)).
-      order('order_time desc').take(1)
+      order('id desc').take(1)
     record = find_by_sql(arel.to_sql).first
     return record.queue_no unless record.blank?
   end
@@ -59,7 +59,7 @@ class Order < ActiveRecord::Base
     a = arel_table.dup; a.table_alias = 'a'
     arel = a.project(Arel.star).
       where(a[:order_date].eq(orderdate)).
-      order('order_time asc')
+      order('id asc')
     arel.where(a[:update_date].gteq(lastrefreshtime)) unless lastrefreshtime.blank?
     records = find_by_sql(arel.to_sql)
     return records
