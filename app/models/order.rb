@@ -1,6 +1,15 @@
 class Order < ActiveRecord::Base
   has_many :order_items, dependent: :delete_all, autosave: :true
   
+  def save!
+    if self.order_no.blank?
+      begin
+        self.order_no = (0...8).map { (65 + rand(26)).chr }.join
+      end until self.class.where(:order_no => self.order_no).blank?
+    end
+    super
+  end
+  
   def hash_data
     result = {}
     self.attributes.each do | key,value |
