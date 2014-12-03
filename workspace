@@ -50,6 +50,8 @@
         <File name="app\assets\javascripts\pos_order\confirm_order.ui.js" />
         <File name="app\assets\javascripts\pos_order\remark.js" />
         <File name="app\assets\javascripts\pos_order\remark.ui.js" />
+        <File name="app\assets\javascripts\pos_order\select_queue.js" />
+        <File name="app\assets\javascripts\pos_order\select_queue.ui.js" />
         <File name="app\assets\stylesheets\pos_order.css" />
         <File name="app\controllers\pos_order_controller.rb" />
     </Project>

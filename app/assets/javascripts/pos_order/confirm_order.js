@@ -68,6 +68,12 @@ ConfirmOrder = {
                 me.callback(true);
             }
         });
+        me.getCmp('boxqueue').on('focus', function() {
+            SelectQueue.show(order.QueueNo, function(result) {
+                order.QueueNo = result;
+                me.getCmp('boxqueue').setValue(result);
+            });
+        });
     },
     afterShow: function(data, order) {
         var me = this;

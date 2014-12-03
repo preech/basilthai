@@ -169,6 +169,7 @@ var ConfirmOrderUi = {
                     decimalPrecision: 0,
                     maxValue: 50,
                     minValue: 1,
+                    readOnly: true,
                 }]
             }]
         }, {

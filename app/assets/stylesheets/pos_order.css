@@ -80,3 +80,21 @@ div {
 .selected {
     background-color: #F78686;
 }
+.queueno {
+    border: 1px solid #00447F;
+    float: left;
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #E4F1FD;
+    font-size: 200%;
+    color: #00447F;
+}
+.queueno:hover {
+    background-color: #BBDDFB;
+}
+.currentqueue {
+    background-color: #50A8F4;
+}
