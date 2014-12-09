@@ -80,6 +80,9 @@ Ext.onReady(function () {
                             }, 3000);
                         });
                     }
+                    else {
+                        nextstep(returnData);
+                    }
                 }
             }
         }, syncflag);
@@ -94,9 +97,18 @@ Ext.onReady(function () {
     
     function render_order(order) {
         var ordertype = order.OrderType == 'TOGO' ? 'To Go' : 'For Here';
-        if (order.Status == 'FINISH') {
+        var finishflag = true;
+        Util.each(order.OrderItems, function(item) {
+            if (['FINISH', 'SAFECANCEL', 'LOSTCANCEL'].indexOf(item.Status) < 0) {
+                finishflag = false;
+            }
+        });
+        if ((order.Status != 'WAIT') && (finishflag || order.Status == 'CANCEL')) {
             var tag = "<table cellspacing=0 cellpadding=0 border=0 width=100% style='background-color:#F1F8FE'><tr><td><span class=finishorder>";
             tag += "Queue #" + order.QueueNo + " at " + order.OrderTime.substr(0,5) + ", " + ordertype + ", " + order.OrderItems.length + " items";
+            if (order.Status == 'CANCEL') {
+                tag += ", this order is cancelled.";
+            }
             tag += "</span></td></tr></table>";
         }
         else {
@@ -119,17 +131,20 @@ Ext.onReady(function () {
                             optionstr += option.OptionName;
                         }
                     });
-                    if (alternateflag) {
+                    if (alternateflag && order.Status != 'WAIT') {
                         tag += "<tr class=alternate>";
                     }
                     else {
                         tag += "<tr>";
                     }
                     var tagid = " orderid=" + order.Id + "/" + item.SeqNo;
-                    if (item.Status == 'FINISH') {
+                    if (['FINISH', 'SAFECANCEL', 'LOSTCANCEL'].indexOf(item.Status) >= 0) {
                         tag += "<td colspan=3 width=100%><span class=finishitem>" + item.Quantity + " " + item.ItemName
                         if (optionstr) {
                             tag += " (" + optionstr + ")";
+                        }
+                        if (['SAFECANCE', 'LOSTCANCEL'].indexOf(item.Status) >= 0) {
+                            tag += " this item is cancelled";
                         }
                         tag += "</span>";
                     }
@@ -156,7 +171,7 @@ Ext.onReady(function () {
         var orderdom = pnlmain.find("div[orderid='" + order.Id + "']");
         if (orderdom.length == 0) {
             var firstorder = pnlmain.find("div[orderid]:first");
-            var ordertag = "<div orderid=" + order.Id + " style='margin:5px;background-color:white'>" + tag + "</div>";
+            var ordertag = "<div class=order orderid=" + order.Id + " style='margin:5px'>" + tag + "</div>";
             if (firstorder.length == 0) {
                 pnlmain.append(ordertag);
             }
@@ -168,60 +183,68 @@ Ext.onReady(function () {
         else {
             orderdom.html(tag);
         }
+        if (order.Status == 'WAIT') {
+            orderdom.addClass('blocked');
+        }
+        else {
+            orderdom.removeClass('blocked');
+        }
         orderdom.find("td[orderid]").bind('click', function(event) {
             var button = $(event.target);
             var pair = button.attr('orderid').split('/');
             var orderid = pair[0];
-            var itemseqno = pair[1];
-            var command = button.text();
-            switch(command) {
-                case 'Uncook':
-                    allOrders[orderid].OrderItems[itemseqno-1].Status = 'UNCOOK';
-                    render_order(allOrders[orderid]);
-                    post_order(orderid);
-                    break;
-                case 'Cook#1':
-                    allOrders[orderid].OrderItems[itemseqno-1].Status = 'COOKING1';
-                    render_order(allOrders[orderid]);
-                    post_order(orderid);
-                    break;
-                case 'Cook#2':
-                    allOrders[orderid].OrderItems[itemseqno-1].Status = 'COOKING2';
-                    render_order(allOrders[orderid]);
-                    post_order(orderid);
-                    break;
-                case 'Finish':
-                    allOrders[orderid].OrderItems[itemseqno-1].Status = 'FINISH';
-                    var allfinish = true;
-                    Util.each(allOrders[orderid].OrderItems, function(item) {
-                        if (item.Status != 'FINISH') {
-                            allfinish = false;
-                        }
-                    });
-                    if (allfinish) {
-                        allOrders[orderid].Status = 'FINISH';
-                    }
-                    render_order(allOrders[orderid]);
-                    post_order(orderid);
-                    refresh_duplicate();
-                    break;
-                case 'Split':
-                    var orderitems = allOrders[orderid].OrderItems;
-                    var quantity = orderitems[itemseqno-1].Quantity;
-                    var firstquantity = Math.floor(quantity / 2);
-                    var secondquantity = quantity - firstquantity;
-                    orderitems[itemseqno-1].Quantity = firstquantity;
-                    var newitem = $.extend(null, orderitems[itemseqno-1]);
-                    newitem.Id = null;
-                    newitem.Quantity = secondquantity;
-                    orderitems.splice(itemseqno, 0, newitem);
-                    Util.each(orderitems, function(item, index) {
-                        item.SeqNo = index+1;
-                    });
-                    render_order(allOrders[orderid]);
-                    post_order(orderid);
-                    refresh_duplicate();
-                    break;
+            if (allOrders[orderid].Status != 'WAIT') {
+                var itemseqno = pair[1];
+                var command = button.text();
+                switch(command) {
+                    case 'Uncook':
+                        allOrders[orderid].OrderItems[itemseqno-1].Status = 'UNCOOK';
+                        render_order(allOrders[orderid]);
+                        post_order(orderid);
+                        break;
+                    case 'Cook#1':
+                        allOrders[orderid].OrderItems[itemseqno-1].Status = 'COOKING1';
+                        render_order(allOrders[orderid]);
+                        post_order(orderid);
+                        break;
+                    case 'Cook#2':
+                        allOrders[orderid].OrderItems[itemseqno-1].Status = 'COOKING2';
+                        render_order(allOrders[orderid]);
+                        post_order(orderid);
+                        break;
+                    case 'Finish':
+                        allOrders[orderid].OrderItems[itemseqno-1].Status = 'FINISH';
+                        // var allfinish = true;
+                        // Util.each(allOrders[orderid].OrderItems, function(item) {
+                            // if (item.Status != 'FINISH') {
+                                // allfinish = false;
+                            // }
+                        // });
+                        // if (allfinish) {
+                            // allOrders[orderid].Status = 'FINISH';
+                        // }
+                        render_order(allOrders[orderid]);
+                        post_order(orderid);
+                        refresh_duplicate();
+                        break;
+                    case 'Split':
+                        var orderitems = allOrders[orderid].OrderItems;
+                        var quantity = orderitems[itemseqno-1].Quantity;
+                        var firstquantity = Math.floor(quantity / 2);
+                        var secondquantity = quantity - firstquantity;
+                        orderitems[itemseqno-1].Quantity = firstquantity;
+                        var newitem = $.extend(null, orderitems[itemseqno-1]);
+                        newitem.Id = null;
+                        newitem.Quantity = secondquantity;
+                        orderitems.splice(itemseqno, 0, newitem);
+                        Util.each(orderitems, function(item, index) {
+                            item.SeqNo = index+1;
+                        });
+                        render_order(allOrders[orderid]);
+                        post_order(orderid);
+                        refresh_duplicate();
+                        break;
+                }
             }
         });
         allOrders[order.Id] = order;

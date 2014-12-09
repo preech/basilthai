@@ -16,6 +16,9 @@ class CookTicketController < TemplateController
       data = params[:data] || "{}"
       hash = JSON.parse(data)
       order = Order.find(params[:id])
+      if (order.status == 'WAIT' || order.status == 'CANCEL')
+        raise Exception, 'Order is blocked, cannot edit this order!'
+      end
       order.hash_data = hash
       order.update_date = DateTime.now
       order.save!

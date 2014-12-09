@@ -10,7 +10,8 @@ class Order < ActiveRecord::Base
     super
   end
   
-  def hash_data
+  def hash_data options=[]
+    options = [options].flatten
     result = {}
     self.attributes.each do | key,value |
       name = key.camelize
@@ -23,7 +24,9 @@ class Order < ActiveRecord::Base
           result[name] = value
       end
     end
-    result[:OrderItems] = self.order_items.map { | order_item | order_item.hash_data}
+    unless options.include? :nochild
+      result[:OrderItems] = self.order_items.map { | order_item | order_item.hash_data} 
+    end
     return result
   end
   
@@ -63,5 +66,49 @@ class Order < ActiveRecord::Base
     arel.where(a[:update_date].gteq(lastrefreshtime)) unless lastrefreshtime.blank?
     records = find_by_sql(arel.to_sql)
     return records
+  end
+  
+  def self.select_by_date order_date, options=[]
+    options = [options].flatten
+    a = arel_table.dup; a.table_alias = 'a'
+    arel = a.project(a[:id], a[:queue_no], a[:order_time], a[:order_type], a[:status]).
+      where(a[:order_date].eq(order_date)).
+      where(a[:status].not_eq('CANCEL')).
+      order('id desc')
+    records = find_by_sql(arel.to_sql)
+    if options.include? :hash
+      return records.map do | record | 
+        result = record.hash_data :nochild 
+        result[:OrderItems] = record.order_items.map do | record |
+          {
+            :ItemName => record.item_name,
+            :Quantity => record.quantity,
+          }
+        end
+        result
+      end
+    else
+      return records
+    end
+  end
+  
+  def self.load_for_edit id, options=[]
+    options = [options].flatten
+    record = Order.find(id)
+    record.status = 'WAIT'
+    record.update_date = DateTime.now
+    record.save!
+    if options.include? :hash
+      return record.hash_data
+    else
+      return record
+    end
+  end
+  
+  def self.unlock id
+    record = Order.find(id)
+    record.status = 'ORDER'
+    record.update_date = DateTime.now
+    record.save!
   end
 end

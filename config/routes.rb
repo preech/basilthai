@@ -4,8 +4,11 @@ Rails.application.routes.draw do
   match '/food_menu', to: 'food_menu#edit' , via: [:get]
   match '/food_menu', to: 'food_menu#update' , via: [:put]
   match '/pos_order', to: 'pos_order#load' , via: [:get]
-  match '/pos_order', to: 'pos_order#create', via: [:put]
+  match '/pos_order', to: 'pos_order#update', via: [:put]
   match '/pos_order/get_last_queue_no', to: 'pos_order#get_last_queue_no', via: [:get]
+  match '/pos_order/index', to: 'pos_order#index', via: [:get]
+  match '/pos_order/load_order/:id', to: 'pos_order#load_order', via: [:get]
+  match '/pos_order/unlock/:id', to: 'pos_order#unlock', via: [:get]
   match '/cook_ticket', to: 'cook_ticket#fetch', via: [:get]
   match '/cook_ticket/:id', to: 'cook_ticket#update', via: [:put]
 

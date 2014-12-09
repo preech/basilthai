@@ -66,3 +66,9 @@ div {
 .duplicate {
     color: #E47A00;
 }
+.order {
+    background-color: white;
+}
+.blocked {
+    background-color: #FBC9C9;
+}

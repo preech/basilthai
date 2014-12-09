@@ -28,6 +28,7 @@
         <File name="app\assets\javascripts\lib\plugin.js" />
         <File name="app\assets\javascripts\lib\util.js" />
         <File name="designer\designer.html" />
+        <File name="app\controllers\template_controller.rb" />
     </Project>
     <Project name="food_menu">
         <File name="app\assets\javascripts\food_menu\main.js" />
@@ -52,6 +53,8 @@
         <File name="app\assets\javascripts\pos_order\remark.ui.js" />
         <File name="app\assets\javascripts\pos_order\select_queue.js" />
         <File name="app\assets\javascripts\pos_order\select_queue.ui.js" />
+        <File name="app\assets\javascripts\pos_order\edit_order.js" />
+        <File name="app\assets\javascripts\pos_order\edit_order.ui.js" />
         <File name="app\assets\stylesheets\pos_order.css" />
         <File name="app\controllers\pos_order_controller.rb" />
     </Project>

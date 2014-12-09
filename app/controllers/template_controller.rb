@@ -28,10 +28,12 @@ class TemplateController < ApplicationController
       list.push("backtrace:-")
       err.backtrace.each do |x|   
         x.match(/^(.+?):(\d+)(|:in `(.+)')$/); 
-        if $1.include? "/projects/"
-          unless $1.include? "template_controller"
-            line = "   #{$1} at line #{$2} in method #{$4}"
-            list.push(line)
+        unless $1.blank?
+          if $1.include? "/projects/"
+            unless $1.include? "template_controller"
+              line = "   #{$1} at line #{$2} in method #{$4}"
+              list.push(line)
+            end
           end
         end
       end

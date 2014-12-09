@@ -98,3 +98,26 @@ div {
 .currentqueue {
     background-color: #50A8F4;
 }
+.oldorder {
+    float: left;
+    border: 1px solid #00447F;
+    width: 120px;
+    height: 150px;
+    margin: 5px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #E4F1FD;
+    font-size: 100%;
+    color: #00447F;
+    overflow: hidden;
+}
+.olditem {
+    font-size: 20%;
+    text-align: left;
+    margin: 5px;
+    overflow: hidden;
+}
+.ruler {
+    border-top: 1px solid #00447F;
+    height: 0px;
+}

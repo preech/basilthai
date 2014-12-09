@@ -13,6 +13,7 @@ Ext.onReady(function () {
     var keypadtimer;
     var data;
     var order = {};
+    var mode = 'NEW';
     
 	$(window).on('beforeunload', function() {
         var store = Ext.getStore('orderlistStore');
@@ -104,12 +105,21 @@ Ext.onReady(function () {
             }, {
                 name: 'quantity', 
             }, {
-                name: 'price'
+                name: 'price',
+            }, {
+                name: 'status',
             }, {
                 name: 'displaytag',
                 convert: function(v, record) {
-                    var tag = record.data.name;
-                    tag = "<span style='font-size:" + 100*ratio + "%'>" + tag + "</span>";
+                    var color = '';
+                    if (['LOSTCANCEL', 'SAFECANCEL'].indexOf(record.data.status) >= 0) {
+                        color = "text-decoration:line-through;";
+                    }
+                    else if (['INITIAL', 'UNCOOK'].indexOf(record.data.status) < 0) {
+                        color = "color:red;";
+                    }
+                    
+                    var tag = "<span style='font-size:" + 100*ratio + "%;" + color + "'>" + record.data.name + "</span>";
                     var optiontag = "";
                     if (record.data.choice) {
                         optiontag += record.data.choicename;
@@ -134,7 +144,7 @@ Ext.onReady(function () {
                         }
                     }
                     if (optiontag) {
-                        tag += "<br><span style='font-size:" + 70*ratio + "%'>" + optiontag + "</span>";
+                        tag += "<br><span style='font-size:" + 70*ratio + "%;" + color + "'>" + optiontag + "</span>";
                     }
                     return tag;
                 },
@@ -155,6 +165,11 @@ Ext.onReady(function () {
         });
     }
     function clearOrder() {
+        mode = 'NEW';
+        var labelmode = Ext.getCmp('labelmode')
+        if (labelmode) {
+            labelmode.update('New Order');
+        }
         order = {
             OrderType: 'FORHERE',
             Status: 'INITIAL',
@@ -211,6 +226,12 @@ Ext.onReady(function () {
                 width: 240*ratio,
                 layout: 'border',
                 items: [{
+                    region: 'north',
+                    height: 20,
+                    bodyStyle: 'text-align:center;background-color:#0073D7;color:white',
+                    id: 'labelmode',
+                    html: 'New Order',
+                }, {
                     region: 'center',
                     layout: 'border',
                     items: [{
@@ -319,8 +340,9 @@ Ext.onReady(function () {
                         data: { value: 9 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>9</span></td></tr></table>',
                     }, {
-                        data: { text: '' },
-                        html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span></span></td></tr></table>',
+                        bodyStyle: 'font-size:' + 100*padyratio + '%',
+                        data: { command: 'cancel_order' },
+                        html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>Cancel<br>Order</span></td></tr></table>',
                     }, {
                         data: { value: 4 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>4</span></td></tr></table>',
@@ -331,8 +353,10 @@ Ext.onReady(function () {
                         data: { value: 6 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>6</span></td></tr></table>',
                     }, {
-                        data: { text: '' },
-                        html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span></span></td></tr></table>',
+                        bodyStyle: 'font-size:' + 100*padyratio + '%',
+                        data: { command: 'edit_order' },
+                        id: 'buttonEditOrder',
+                        html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>Edit<br>Order</span></td></tr></table>',
                     }, {
                         data: { value: 1 },
                         html: '<table cellpadding=0 cellspacint=0 style="text-align:center" width=100% height=100%><tr><td><span>1</span></td></tr></table>',
@@ -443,6 +467,133 @@ Ext.onReady(function () {
             Remark.show(data, order, function() {
             });
         }
+        else if (comp.data.command == 'edit_order') {
+            function nextstep() {
+                EditOrder.show(function(orderid) {
+                    Util.requestCallback('GET', 'load_order', orderid, null, null, function(returnData) {
+                        order = returnData;
+                        var store = Ext.getStore('orderlistStore');
+                        store.removeAll();
+                        Util.each(order.OrderItems, function(item) {
+                            var options = []
+                            Util.each(item.OrderOptions, function(option, index) {
+                                if (option.DefaultFlag == 'F') {
+                                    options[index] = option.OptionCode;
+                                }
+                            });
+                            store.add({ 
+                                foodid: item.ItemCode, 
+                                name: item.ItemName, 
+                                choice: item.ChoiceCode, 
+                                choicename: item.ChoiceName,
+                                quantity: item.Quantity, 
+                                price: item.Price, 
+                                status: item.Status,
+                                option: options
+                            });
+                            
+                        });
+                        Ext.getCmp('orderGrid').getView().select(store.getAt(0));
+                        updatetotal();
+                        mode = 'EDIT';
+                        Ext.getCmp('labelmode').update('Edit Order #' + order.QueueNo );
+                        var buttonedit = Ext.getCmp('buttonEditOrder');
+                        $(buttonedit.el.dom).find('span:last').html('Cancel<br>Editing');
+                        buttonedit.data.command = 'cancel_editing';
+                    });
+                });
+            }
+            var sm = Ext.getCmp('orderGrid').getSelectionModel();
+            if (sm.hasSelection()) {
+                Ext.Msg.confirm('', 'This order has not finished.<br>You will lost it.<br>Continue ?', function(result) {
+                    if (result == 'yes') {
+                        nextstep();
+                    }
+                });
+            }
+            else {
+                nextstep();
+            }
+        }
+        else if (comp.data.command == 'cancel_editing') {
+            Ext.Msg.confirm('', 'All changing of this order will be ignored.<br>Continue ?', function(result) {
+                if (result == 'yes') {
+                    if (mode == 'EDIT') {
+                        Util.requestCallback('GET', 'unlock', order.Id, null, null, function() {
+                            var store = Ext.getStore('orderlistStore');
+                            store.removeAll();
+                            var optionpanel = Ext.getCmp('pnlOption');
+                            optionpanel.removeAll();
+                            clearOrder();
+                            updatetotal();
+                            var buttonedit = Ext.getCmp('buttonEditOrder');
+                            $(buttonedit.el.dom).find('span:last').html('Edit<br>Order');
+                            buttonedit.data.command = 'edit_order';
+                        });
+                    }
+                }
+            });
+        }
+        else if (comp.data.command == 'cancel_order') {
+            function nextstep() {
+                var store = Ext.getStore('orderlistStore');
+                store.removeAll();
+                var optionpanel = Ext.getCmp('pnlOption');
+                optionpanel.removeAll();
+                clearOrder();
+                updatetotal();
+                var buttonedit = Ext.getCmp('buttonEditOrder');
+                $(buttonedit.el.dom).find('span:last').html('Edit<br>Order');
+                buttonedit.data.command = 'edit_order';
+            }
+            if (mode == 'NEW') {
+                var sm = Ext.getCmp('orderGrid').getSelectionModel();
+                if (sm.hasSelection()) {
+                    Ext.Msg.confirm('', 'This order has not finished.<br>You will lost it.<br>Continue ?', function(result) {
+                        if (result == 'yes') {
+                            nextstep();
+                        }
+                    });
+                }
+                else {
+                    nextstep();
+                }
+            }
+            else {
+                var cookedflag = false;
+                var store = Ext.getStore('orderlistStore');
+                var list = store.getRange();
+                var total = 0;
+                Ext.each(list, function(record) {
+                    if (['COOKING1', 'COOKING2', 'FINISH'].indexOf(record.get('status')) >= 0) {
+                        cookedflag = true;
+                        return false;
+                    }
+                });
+                if (cookedflag) {
+                    Ext.Msg.confirm('', 'This order has been cooked.<br>Do you want to cancel ?', function(result) {
+                        if (result == 'yes') {
+                            saveOrder();
+                            order.Status = 'CANCEL';
+                            Util.requestCallback('PUT', null, null, null, order, function(returnData) {
+                                nextstep();
+                            });
+                        }
+                    });
+                }
+                else {
+                    Ext.Msg.confirm('', 'Do you want to cancel this order ?', function(result) {
+                        if (result == 'yes') {
+                            saveOrder();
+                            order.Status = 'CANCEL';
+                            Util.requestCallback('PUT', null, null, null, order, function(returnData) {
+                                nextstep();
+                            });
+                        }
+                    });
+                }
+            }
+        }
         else {
             var sm = Ext.getCmp('orderGrid').getSelectionModel();
             if (sm.hasSelection())
@@ -461,14 +612,58 @@ Ext.onReady(function () {
                     switch (comp.data.command) {
                         case 'delete_item':
                             var store = Ext.getStore('orderlistStore');
-                            var index = store.indexOf(record);
-                            store.remove(record);
-                            var count = store.getCount();
-                            if (count > index) {
-                                Ext.getCmp('orderGrid').getView().select(index);
+                            var error = '';
+                            switch (record.get('status')) {
+                                case 'SAFECANCEL':
+                                case 'LOSTCANCEL':
+                                    error = 'Cancelled';
+                                    break;
+                                case 'COOKING1':
+                                case 'COOKING2':
+                                    error = 'Cooking';
+                                    break;
+                                case 'FINISH':
+                                    error = 'Finished';
+                                    break;
+                                case 'UNCOOK':
+                                    error = 'Uncook';
+                                    break;
                             }
-                            else if (count > 0) {
-                                 Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
+                            if (error) {
+                                if (error == 'Cancelled') {
+                                    Ext.Msg.alert('', 'This item has already been deleted');
+                                }
+                                else if (error == 'Uncook') {
+                                    Ext.Msg.confirm('', 'Please confirm to delete!', function(result) {
+                                        if (result == 'yes') {
+                                            record.set('status', 'SAFECANCEL');
+                                            record.set('displaytag', null);
+                                            record.set('displayqty', null);
+                                            Ext.getStore('orderlistStore').commitChanges();
+                                        }
+                                    });
+                                }
+                                else {
+                                    Ext.Msg.confirm('', 'This item is ' + error + ', please confirm to delete!', function(result) {
+                                        if (result == 'yes') {
+                                            record.set('status', 'LOSTCANCEL');
+                                            record.set('displaytag', null);
+                                            record.set('displayqty', null);
+                                            Ext.getStore('orderlistStore').commitChanges();
+                                        }
+                                    });
+                                }
+                            }
+                            else {
+                                var index = store.indexOf(record);
+                                store.remove(record);
+                                var count = store.getCount();
+                                if (count > index) {
+                                    Ext.getCmp('orderGrid').getView().select(index);
+                                }
+                                else if (count > 0) {
+                                     Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
+                                }
                             }
                             break;
                         case 'close_order':
@@ -484,17 +679,28 @@ Ext.onReady(function () {
                             ConfirmOrder.show(data, order, function(closeflag) {
                                 if (closeflag) {
                                     saveOrder();
-                                    order.Status = 'START';
+                                    var temporder = $.extend('', order);
+                                    temporder.Status = 'ORDER';
+                                    Util.each(temporder.OrderItems, function(item) {
+                                        if (item.Status == 'INITIAL') {
+                                            item.Status = 'UNCOOK';
+                                        }
+                                    });
                                     var now = new Date();
-                                    order.OrderDate = Util.dateToStr(now);
-                                    order.OrderTime = Ext.util.Format.date(now, 'H:i:s.u');
-                                    Util.requestCallback('PUT', null, null, null, order, function(returnData) {
+                                    if (mode == 'NEW') {
+                                        temporder.OrderDate = Util.dateToStr(now);
+                                        temporder.OrderTime = Ext.util.Format.date(now, 'H:i:s.u');
+                                    }
+                                    Util.requestCallback('PUT', null, null, null, temporder, function(returnData) {
                                         var store = Ext.getStore('orderlistStore');
                                         store.removeAll();
                                         var optionpanel = Ext.getCmp('pnlOption');
                                         optionpanel.removeAll();
                                         clearOrder();
                                         updatetotal();
+                                        var buttonedit = Ext.getCmp('buttonEditOrder');
+                                        $(buttonedit.el.dom).find('span:last').html('Edit<br>Order');
+                                        buttonedit.data.command = 'edit_order';
                                     });
                                 }
                                 else {
@@ -526,7 +732,7 @@ Ext.onReady(function () {
                 PriceType: item.PriceType,
                 ChoiceCode: record.get('choice'),
                 ChoiceName: record.get('choicename'),
-                Status: 'UNCOOK',
+                Status: record.get('status'),
                 SeqNo: index+1,
             }
             if (item.PriceType == 'CHOICE') {
@@ -815,7 +1021,7 @@ Ext.onReady(function () {
                 }
                 var compx = Ext.getCmp(target.attr('id'));
                 var store = Ext.getStore('orderlistStore');
-                store.add({ foodid: itemdata.ItemCode, name: itemdata.Name, choice: compx.data.choice, choicename: compx.data.name, quantity: 1, price: compx.data.price, option: []});
+                store.add({ foodid: itemdata.ItemCode, name: itemdata.Name, choice: compx.data.choice, choicename: compx.data.name, quantity: 1, price: compx.data.price, status: 'INITIAL', option: []});
                 var count = store.getCount();
                 Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
                 updatetotal();
@@ -829,7 +1035,7 @@ Ext.onReady(function () {
             });
         }
         else {
-            store.add({ foodid: itemdata.ItemCode, name: itemdata.Name, quantity: 1, price: itemdata.Price, option: [] });
+            store.add({ foodid: itemdata.ItemCode, name: itemdata.Name, quantity: 1, price: itemdata.Price, status: 'INITIAL', option: [] });
             var count = store.getCount();
             Ext.getCmp('orderGrid').getView().select(store.getAt(count-1));
             updatetotal();
