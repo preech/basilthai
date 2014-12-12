@@ -143,7 +143,7 @@ Ext.onReady(function () {
                         if (optionstr) {
                             tag += " (" + optionstr + ")";
                         }
-                        if (['SAFECANCE', 'LOSTCANCEL'].indexOf(item.Status) >= 0) {
+                        if (['SAFECANCEL', 'LOSTCANCEL'].indexOf(item.Status) >= 0) {
                             tag += " this item is cancelled";
                         }
                         tag += "</span>";
